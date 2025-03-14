@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User
+from users.models.models import User
 
 class Recommendation(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recommendations')

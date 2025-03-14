@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User
+from users.models.models import User
 
 class Application(models.Model):
     # Application Status Choices
@@ -24,4 +24,3 @@ class Application(models.Model):
     def __str__(self):
         return f"{self.student.username} - {self.university_name}"
     
-        
