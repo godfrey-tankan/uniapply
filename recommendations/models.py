@@ -2,7 +2,6 @@ from django.db import models
 from users.models import User
 
 class Recommendation(models.Model):
-    # Fields
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recommendations')
     recommended_university = models.CharField(max_length=255)
     recommended_program = models.CharField(max_length=255)

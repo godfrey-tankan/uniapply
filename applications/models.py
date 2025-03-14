@@ -7,6 +7,9 @@ class Application(models.Model):
         ('Pending', 'Pending'),
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
+        ('Deferred', 'Deferred'),
+        ('Waitlisted', 'Waitlisted'),
+        ('Withdrawn', 'Withdrawn'),
     ]
 
     # Fields
@@ -20,3 +23,5 @@ class Application(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.university_name}"
+    
+        
