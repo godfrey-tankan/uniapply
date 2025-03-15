@@ -1,0 +1,161 @@
+
+import React from 'react';
+import { FiCalendar, FiFileText, FiChevronRight } from 'react-icons/fi';
+import ScrollReveal from './ui/ScrollReveal';
+
+const NewsCard = ({ 
+  title, 
+  excerpt, 
+  date, 
+  category, 
+  delay 
+}) => (
+  <ScrollReveal delay={delay}>
+    <div className="bg-white p-6 rounded-xl shadow-sm h-full flex flex-col hover:shadow-md transition-all duration-300">
+      <div className="mb-3">
+        <span className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-medium">
+          {category}
+        </span>
+      </div>
+      <h3 className="text-xl font-semibold mb-2 text-blue-900">{title}</h3>
+      <p className="text-sm text-gray-600 mb-4 flex-grow">{excerpt}</p>
+      <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
+        <div className="flex items-center">
+          <FiCalendar className="h-4 w-4 mr-2" />
+          <span>{date}</span>
+        </div>
+        <a href="#" className="flex items-center text-blue-600 hover:text-blue-800">
+          Read More <FiChevronRight className="h-4 w-4 ml-1" />
+        </a>
+      </div>
+    </div>
+  </ScrollReveal>
+);
+
+const MemoCard = ({ 
+  title, 
+  issuer, 
+  date, 
+  delay 
+}) => (
+  <ScrollReveal delay={delay}>
+    <div className="flex items-start p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+      <div className="p-2 rounded-md bg-blue-50 mr-4">
+        <FiFileText className="h-5 w-5 text-blue-700" />
+      </div>
+      <div>
+        <h4 className="text-base font-medium text-gray-900 mb-1">{title}</h4>
+        <p className="text-sm text-gray-600 mb-2">Issued by: {issuer}</p>
+        <div className="flex items-center text-xs text-gray-500">
+          <FiCalendar className="h-3 w-3 mr-1" />
+          <span>{date}</span>
+        </div>
+      </div>
+    </div>
+  </ScrollReveal>
+);
+
+const News = () => {
+  const newsItems = [
+    {
+      title: "New Medical Programs Added for 2023",
+      excerpt: "Fifteen new medical programs have been added to the platform, including specialized courses in pediatrics and cardiology from top universities.",
+      date: "July 15, 2023",
+      category: "New Programs"
+    },
+    {
+      title: "Application Fee Waiver for International Students",
+      excerpt: "Eligible international students can now apply for application fee waivers. Check your eligibility and the required documentation.",
+      date: "July 10, 2023",
+      category: "Announcement"
+    },
+    {
+      title: "Student Success Stories: Class of 2022",
+      excerpt: "Read inspiring success stories from students who found their perfect university match through our platform last year.",
+      date: "July 5, 2023",
+      category: "Success Stories"
+    }
+  ];
+
+  const memos = [
+    {
+      title: "Updated Admission Requirements for Engineering Programs",
+      issuer: "Admissions Committee",
+      date: "July 18, 2023"
+    },
+    {
+      title: "System Maintenance Scheduled for July 25",
+      issuer: "Technical Support",
+      date: "July 17, 2023"
+    },
+    {
+      title: "2023 Scholarship Opportunities Now Available",
+      issuer: "Financial Aid Office",
+      date: "July 16, 2023"
+    },
+    {
+      title: "New Document Verification Process",
+      issuer: "Verification Department",
+      date: "July 15, 2023"
+    },
+    {
+      title: "Changes to Application Deadlines for Fall Semester",
+      issuer: "Academic Calendar Committee",
+      date: "July 14, 2023"
+    }
+  ];
+
+  return (
+    <section id="news" className="py-20 bg-white">
+      <div className="container px-4 mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="lg:col-span-2">
+            <ScrollReveal>
+              <h2 className="text-3xl font-bold text-blue-900 mb-4">Latest News</h2>
+            </ScrollReveal>
+            <ScrollReveal delay={200}>
+              <p className="text-lg text-gray-600 mb-10">
+                Stay updated with the latest announcements and features
+              </p>
+            </ScrollReveal>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {newsItems.map((item, index) => (
+                <NewsCard
+                  key={index}
+                  title={item.title}
+                  excerpt={item.excerpt}
+                  date={item.date}
+                  category={item.category}
+                  delay={300 + index * 100}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <ScrollReveal>
+              <h2 className="text-2xl font-semibold mb-6 text-blue-900">Recent Memos</h2>
+            </ScrollReveal>
+
+            <div className="bg-white p-4 rounded-xl shadow-sm">
+              <div className="space-y-2 divide-y divide-gray-100">
+                {memos.map((memo, index) => (
+                  <MemoCard
+                    key={index}
+                    title={memo.title}
+                    issuer={memo.issuer}
+                    date={memo.date}
+                    delay={300 + index * 100}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default News;
