@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { FiBookOpen, FiTarget, FiUsers, FiAward } from 'react-icons/fi';
+import { BookOpen, Target, Users, Award } from 'lucide-react';
 import ScrollReveal from './ui/ScrollReveal';
 
 const About = () => {
@@ -61,7 +61,7 @@ const About = () => {
               <ScrollReveal delay={400} className="bg-white p-8 rounded-xl shadow-sm">
                 <div className="flex items-start mb-6">
                   <div className="p-3 rounded-full bg-blue-50 mr-4">
-                    <FiTarget className="h-6 w-6 text-blue-700" />
+                    <Target className="h-6 w-6 text-blue-700" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-semibold mb-4 text-blue-900">Our Mission</h3>
@@ -83,7 +83,7 @@ const About = () => {
               <ScrollReveal delay={400} className="bg-white p-8 rounded-xl shadow-sm">
                 <div className="flex items-start mb-6">
                   <div className="p-3 rounded-full bg-blue-50 mr-4">
-                    <FiBookOpen className="h-6 w-6 text-blue-700" />
+                    <BookOpen className="h-6 w-6 text-blue-700" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-semibold mb-4 text-blue-900">Our Vision</h3>
@@ -105,7 +105,7 @@ const About = () => {
               <ScrollReveal delay={400} className="bg-white p-8 rounded-xl shadow-sm">
                 <div className="flex items-start mb-6">
                   <div className="p-3 rounded-full bg-blue-50 mr-4">
-                    <FiAward className="h-6 w-6 text-blue-700" />
+                    <Award className="h-6 w-6 text-blue-700" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-semibold mb-4 text-blue-900">Our Values</h3>
@@ -139,7 +139,7 @@ const About = () => {
               <ScrollReveal delay={400} className="bg-white p-8 rounded-xl shadow-sm">
                 <div className="flex items-start mb-6">
                   <div className="p-3 rounded-full bg-blue-50 mr-4">
-                    <FiUsers className="h-6 w-6 text-blue-700" />
+                    <Users className="h-6 w-6 text-blue-700" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-semibold mb-4 text-blue-900">Our Team</h3>

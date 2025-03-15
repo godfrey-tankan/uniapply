@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiGraduationCap, FiMenu, FiX, FiSearch } from 'react-icons/fi';
+import { GraduationCap, Menu, X, Search } from 'lucide-react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -25,7 +25,7 @@ const Navbar = () => {
     >
       <div className="container px-4 mx-auto flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <FiGraduationCap className="h-8 w-8 text-blue-600" />
+          <GraduationCap className="h-8 w-8 text-blue-600" />
           <span className="text-xl font-bold text-blue-600">UniApply</span>
         </Link>
 
@@ -40,7 +40,7 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-4">
           <button className="p-2 text-gray-700 hover:text-blue-600">
-            <FiSearch className="h-5 w-5" />
+            <Search className="h-5 w-5" />
           </button>
           <Link 
             to="/register" 
@@ -55,9 +55,9 @@ const Navbar = () => {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? (
-            <FiX className="h-6 w-6" />
+            <X className="h-6 w-6" />
           ) : (
-            <FiMenu className="h-6 w-6" />
+            <Menu className="h-6 w-6" />
           )}
         </button>
 
@@ -109,7 +109,7 @@ const Navbar = () => {
             </nav>
             <div className="flex flex-col gap-2">
               <button className="flex items-center justify-start px-4 py-2 text-sm font-medium border border-gray-300 rounded-md">
-                <FiSearch className="h-4 w-4 mr-2" />
+                <Search className="h-4 w-4 mr-2" />
                 Search
               </button>
               <Link 

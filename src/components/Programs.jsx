@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FiGraduationCap, FiClock, FiUsers, FiChevronRight } from 'react-icons/fi';
+import { GraduationCap, Clock, Users, ChevronRight } from 'lucide-react';
 import ScrollReveal from './ui/ScrollReveal';
 
 const ProgramCard = ({ 
@@ -32,17 +32,17 @@ const ProgramCard = ({
         <div className="mt-auto space-y-3">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center">
-              <FiUsers className="h-4 w-4 mr-2 text-gray-500" />
+              <Users className="h-4 w-4 mr-2 text-gray-500" />
               <span>{seats} seats</span>
             </div>
             <div className="flex items-center">
-              <FiClock className="h-4 w-4 mr-2 text-gray-500" />
+              <Clock className="h-4 w-4 mr-2 text-gray-500" />
               <span>Closes: {deadline}</span>
             </div>
           </div>
           
           <button className="w-full flex justify-between items-center px-4 py-2 border border-blue-200 rounded-md text-blue-700 hover:bg-blue-50 transition-colors">
-            View Program <FiChevronRight className="h-4 w-4" />
+            View Program <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -133,7 +133,7 @@ const Programs = () => {
         <ScrollReveal delay={600}>
           <div className="mt-12 text-center">
             <button className="bg-blue-700 hover:bg-blue-800 text-white rounded-full px-8 py-3 flex items-center mx-auto">
-              View All Programs <FiChevronRight className="ml-2 h-5 w-5" />
+              View All Programs <ChevronRight className="ml-2 h-5 w-5" />
             </button>
           </div>
         </ScrollReveal>

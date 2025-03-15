@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FiCalendar, FiFileText, FiChevronRight } from 'react-icons/fi';
+import { Calendar, FileText, ChevronRight } from 'lucide-react';
 import ScrollReveal from './ui/ScrollReveal';
 
 const NewsCard = ({ 
@@ -21,11 +21,11 @@ const NewsCard = ({
       <p className="text-sm text-gray-600 mb-4 flex-grow">{excerpt}</p>
       <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
         <div className="flex items-center">
-          <FiCalendar className="h-4 w-4 mr-2" />
+          <Calendar className="h-4 w-4 mr-2" />
           <span>{date}</span>
         </div>
         <a href="#" className="flex items-center text-blue-600 hover:text-blue-800">
-          Read More <FiChevronRight className="h-4 w-4 ml-1" />
+          Read More <ChevronRight className="h-4 w-4 ml-1" />
         </a>
       </div>
     </div>
@@ -41,13 +41,13 @@ const MemoCard = ({
   <ScrollReveal delay={delay}>
     <div className="flex items-start p-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
       <div className="p-2 rounded-md bg-blue-50 mr-4">
-        <FiFileText className="h-5 w-5 text-blue-700" />
+        <FileText className="h-5 w-5 text-blue-700" />
       </div>
       <div>
         <h4 className="text-base font-medium text-gray-900 mb-1">{title}</h4>
         <p className="text-sm text-gray-600 mb-2">Issued by: {issuer}</p>
         <div className="flex items-center text-xs text-gray-500">
-          <FiCalendar className="h-3 w-3 mr-1" />
+          <Calendar className="h-3 w-3 mr-1" />
           <span>{date}</span>
         </div>
       </div>

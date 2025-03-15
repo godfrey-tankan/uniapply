@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FiArrowRight, FiCheckCircle } from 'react-icons/fi';
+import { ArrowRight, CheckCircle } from 'lucide-react';
 import ScrollReveal from './ui/ScrollReveal';
 
 const Hero = () => {
@@ -36,7 +36,7 @@ const Hero = () => {
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
                 <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full py-4 px-8 text-base font-medium flex items-center">
                   Start Application
-                  <FiArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </button>
                 <button className="rounded-full py-4 px-8 border border-blue-200 text-blue-700 text-base font-medium">
                   Explore Programs
@@ -47,19 +47,19 @@ const Hero = () => {
             <ScrollReveal delay={900}>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex items-center">
-                  <FiCheckCircle className="h-5 w-5 text-blue-500 mr-2" />
+                  <CheckCircle className="h-5 w-5 text-blue-500 mr-2" />
                   <span className="text-sm text-gray-700">300+ Universities</span>
                 </div>
                 <div className="flex items-center">
-                  <FiCheckCircle className="h-5 w-5 text-blue-500 mr-2" />
+                  <CheckCircle className="h-5 w-5 text-blue-500 mr-2" />
                   <span className="text-sm text-gray-700">10,000+ Programs</span>
                 </div>
                 <div className="flex items-center">
-                  <FiCheckCircle className="h-5 w-5 text-blue-500 mr-2" />
+                  <CheckCircle className="h-5 w-5 text-blue-500 mr-2" />
                   <span className="text-sm text-gray-700">Simple Application</span>
                 </div>
                 <div className="flex items-center">
-                  <FiCheckCircle className="h-5 w-5 text-blue-500 mr-2" />
+                  <CheckCircle className="h-5 w-5 text-blue-500 mr-2" />
                   <span className="text-sm text-gray-700">24/7 Support</span>
                 </div>
               </div>
