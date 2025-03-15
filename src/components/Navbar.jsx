@@ -1,11 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { GraduationCap, Menu, X, Search } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { GraduationCap, Menu, X, Search, LogIn, UserPlus, LogOut } from 'lucide-react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  
+  // Get auth status from localStorage - this is just for compatibility with the new auth system
+  const isAuthenticated = !!localStorage.getItem('authToken');
+  const user = localStorage.getItem('userProfile') ? JSON.parse(localStorage.getItem('userProfile')) : null;
+
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userProfile');
+    navigate('/');
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,20 +45,45 @@ const Navbar = () => {
           <a href="#statistics" className="text-sm font-medium text-gray-800 hover:text-blue-600">Statistics</a>
           <a href="#news" className="text-sm font-medium text-gray-800 hover:text-blue-600">News & Memos</a>
           <a href="#about" className="text-sm font-medium text-gray-800 hover:text-blue-600">About</a>
-          <Link to="/register" className="text-sm font-medium text-gray-800 hover:text-blue-600">Register</Link>
-          <Link to="/login" className="text-sm font-medium text-gray-800 hover:text-blue-600">Login</Link>
+          
+          {isAuthenticated ? (
+            <>
+              <Link 
+                to={user?.is_student ? "/student-dashboard" : "/lecturer-dashboard"} 
+                className="text-sm font-medium text-gray-800 hover:text-blue-600"
+              >
+                Dashboard
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/register" className="text-sm font-medium text-gray-800 hover:text-blue-600">Register</Link>
+              <Link to="/login" className="text-sm font-medium text-gray-800 hover:text-blue-600">Login</Link>
+            </>
+          )}
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
           <button className="p-2 text-gray-700 hover:text-blue-600">
             <Search className="h-5 w-5" />
           </button>
-          <Link 
-            to="/register" 
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-          >
-            Apply Now
-          </Link>
+          
+          {isAuthenticated ? (
+            <button 
+              onClick={logout}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </button>
+          ) : (
+            <Link 
+              to="/register" 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+            >
+              Apply Now
+            </Link>
+          )}
         </div>
 
         <button
@@ -92,32 +128,60 @@ const Navbar = () => {
               >
                 About
               </a>
-              <Link 
-                to="/register" 
-                className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Register
-              </Link>
-              <Link 
-                to="/login" 
-                className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Login
-              </Link>
+              
+              {isAuthenticated ? (
+                <>
+                  <Link 
+                    to={user?.is_student ? "/student-dashboard" : "/lecturer-dashboard"}
+                    className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-left"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link 
+                    to="/register" 
+                    className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Register
+                  </Link>
+                  <Link 
+                    to="/login" 
+                    className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                </>
+              )}
             </nav>
             <div className="flex flex-col gap-2">
               <button className="flex items-center justify-start px-4 py-2 text-sm font-medium border border-gray-300 rounded-md">
                 <Search className="h-4 w-4 mr-2" />
                 Search
               </button>
-              <Link 
-                to="/register" 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-center"
-              >
-                Apply Now
-              </Link>
+              
+              {!isAuthenticated && (
+                <Link 
+                  to="/register" 
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-center"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Apply Now
+                </Link>
+              )}
             </div>
           </div>
         )}

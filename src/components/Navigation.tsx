@@ -2,11 +2,14 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { GraduationCap, Menu, X, Search } from 'lucide-react';
+import { GraduationCap, Menu, X, Search, LogIn, UserPlus } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,10 +31,10 @@ const Navigation = () => {
       )}
     >
       <div className="container px-4 mx-auto flex items-center justify-between">
-        <a href="#" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <GraduationCap className="h-8 w-8 text-university-DEFAULT" />
           <span className="text-xl font-display font-semibold text-university-DEFAULT">UniApply</span>
-        </a>
+        </Link>
 
         <nav className="hidden md:flex items-center gap-8">
           <a href="#programs" className="link-underline text-sm font-medium text-gray-800">Programs</a>
@@ -44,9 +47,46 @@ const Navigation = () => {
           <Button variant="ghost" size="icon">
             <Search className="h-5 w-5" />
           </Button>
-          <Button className="bg-university-DEFAULT hover:bg-university-DEFAULT/90">
-            Apply Now
-          </Button>
+          
+          {isAuthenticated ? (
+            <>
+              <Button 
+                variant="ghost" 
+                className="gap-2"
+                as={Link}
+                to={user?.is_student ? "/student-dashboard" : "/lecturer-dashboard"}
+              >
+                Dashboard
+              </Button>
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={logout}
+              >
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="ghost" 
+                className="gap-2"
+                as={Link}
+                to="/login"
+              >
+                <LogIn className="h-4 w-4" />
+                Sign In
+              </Button>
+              <Button 
+                className="bg-university-DEFAULT hover:bg-university-DEFAULT/90 gap-2"
+                as={Link}
+                to="/register"
+              >
+                <UserPlus className="h-4 w-4" />
+                Register
+              </Button>
+            </>
+          )}
         </div>
 
         <Button
@@ -93,15 +133,61 @@ const Navigation = () => {
               >
                 About
               </a>
+              
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    to={user?.is_student ? "/student-dashboard" : "/lecturer-dashboard"}
+                    className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-left"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
             </nav>
             <div className="flex flex-col gap-2">
               <Button variant="outline" className="justify-start" size="sm">
                 <Search className="h-4 w-4 mr-2" />
                 Search
               </Button>
-              <Button className="bg-university-DEFAULT hover:bg-university-DEFAULT/90">
-                Apply Now
-              </Button>
+              
+              {!isAuthenticated && (
+                <Button 
+                  className="bg-university-DEFAULT hover:bg-university-DEFAULT/90"
+                  as={Link}
+                  to="/register"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Apply Now
+                </Button>
+              )}
             </div>
           </div>
         )}
