@@ -1,7 +1,8 @@
 
-import { Chart } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Activity, Users, BookOpen, University } from 'lucide-react';
 import ScrollReveal from './ui/ScrollReveal';
+import { BarChart, Bar, PieChart, Pie, LineChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const StatCard = ({ icon, value, label, delay }: { icon: React.ReactNode; value: string; label: string; delay: number }) => (
   <ScrollReveal delay={delay} className="w-full">
@@ -31,6 +32,11 @@ const Statistics = () => {
     { name: 'Arts', value: 15 },
     { name: 'Science', value: 17 },
   ];
+
+  const chartConfig = {
+    applications: { label: "Applications" },
+    programs: { label: "Programs" }
+  };
 
   return (
     <section id="statistics" className="py-20 bg-white">
@@ -75,28 +81,45 @@ const Statistics = () => {
           <ScrollReveal delay={300}>
             <div className="glass-card p-6 rounded-xl">
               <h3 className="text-xl font-semibold mb-6">Monthly Applicant Growth</h3>
-              <Chart 
-                type="bar" 
-                data={applicantData} 
-                dataKey="value" 
-                xAxis="name" 
-                height={300}
-                fill="#3E92CC"
-              />
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={applicantData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="value" fill="#3E92CC" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </ScrollReveal>
 
           <ScrollReveal delay={400}>
             <div className="glass-card p-6 rounded-xl">
               <h3 className="text-xl font-semibold mb-6">Most Popular Fields of Study</h3>
-              <Chart 
-                type="pie" 
-                data={programData} 
-                dataKey="value" 
-                nameKey="name" 
-                height={300}
-                colors={["#3E92CC", "#0A2463", "#1E5F74", "#F0EEE9", "#011936"]}
-              />
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={programData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    dataKey="value"
+                    nameKey="name"
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {programData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={`hsl(${index * 45}, 70%, 50%)`} 
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </ScrollReveal>
         </div>
