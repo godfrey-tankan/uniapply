@@ -50,14 +50,11 @@ const Navigation = () => {
           
           {isAuthenticated ? (
             <>
-              <Button 
-                variant="ghost" 
-                className="gap-2"
-                as={Link}
-                to={user?.is_student ? "/student-dashboard" : "/lecturer-dashboard"}
-              >
-                Dashboard
-              </Button>
+              <Link to={user?.is_student ? "/student-dashboard" : "/lecturer-dashboard"}>
+                <Button variant="ghost" className="gap-2">
+                  Dashboard
+                </Button>
+              </Link>
               <Button 
                 variant="outline" 
                 className="gap-2"
@@ -68,23 +65,18 @@ const Navigation = () => {
             </>
           ) : (
             <>
-              <Button 
-                variant="ghost" 
-                className="gap-2"
-                as={Link}
-                to="/login"
-              >
-                <LogIn className="h-4 w-4" />
-                Sign In
-              </Button>
-              <Button 
-                className="bg-university-DEFAULT hover:bg-university-DEFAULT/90 gap-2"
-                as={Link}
-                to="/register"
-              >
-                <UserPlus className="h-4 w-4" />
-                Register
-              </Button>
+              <Link to="/login">
+                <Button variant="ghost" className="gap-2">
+                  <LogIn className="h-4 w-4" />
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button className="bg-university-DEFAULT hover:bg-university-DEFAULT/90 gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Register
+                </Button>
+              </Link>
             </>
           )}
         </div>
@@ -179,14 +171,11 @@ const Navigation = () => {
               </Button>
               
               {!isAuthenticated && (
-                <Button 
-                  className="bg-university-DEFAULT hover:bg-university-DEFAULT/90"
-                  as={Link}
-                  to="/register"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Apply Now
-                </Button>
+                <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button className="bg-university-DEFAULT hover:bg-university-DEFAULT/90 w-full">
+                    Apply Now
+                  </Button>
+                </Link>
               )}
             </div>
           </div>

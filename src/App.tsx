@@ -11,6 +11,7 @@ import Register from "./pages/Register";
 import StudentDashboard from "./pages/StudentDashboard";
 import LecturerDashboard from "./pages/LecturerDashboard";
 import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -25,8 +26,16 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/student-dashboard" element={<StudentDashboard />} />
-            <Route path="/lecturer-dashboard" element={<LecturerDashboard />} />
+            <Route path="/student-dashboard" element={
+              <ProtectedRoute requiresStudent>
+                <StudentDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/lecturer-dashboard" element={
+              <ProtectedRoute requiresLecturer>
+                <LecturerDashboard />
+              </ProtectedRoute>
+            } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

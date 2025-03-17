@@ -35,7 +35,15 @@ const Register = () => {
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
-    await register(data);
+    // Ensure all required fields are present
+    const registerData = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      is_student: data.is_student,
+    };
+    
+    await register(registerData);
   };
 
   return (

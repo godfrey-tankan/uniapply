@@ -30,7 +30,13 @@ const Login = () => {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    await login(data);
+    // Ensure all required fields are present
+    const loginData = {
+      email: data.email,
+      password: data.password,
+    };
+    
+    await login(loginData);
   };
 
   return (
