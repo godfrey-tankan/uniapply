@@ -62,7 +62,7 @@ export const loginUser = async (data: LoginData): Promise<string | null> => {
     }
 
     const responseData = await response.json();
-    const token = responseData.token;
+    const token = responseData.access;
 
     // Store the token in localStorage
     localStorage.setItem("authToken", token);
