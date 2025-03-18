@@ -7,7 +7,7 @@ import {
   XCircle, 
   Clock, 
   AlertCircle, 
-  UserClock,
+  Clock3,
   FileX
 } from "lucide-react";
 
@@ -40,7 +40,7 @@ const ApplicationsList = () => {
       case 'Deferred':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />;
       case 'Waitlisted':
-        return <UserClock className="h-5 w-5 text-orange-500" />;
+        return <Clock3 className="h-5 w-5 text-orange-500" />;
       case 'Withdrawn':
         return <FileX className="h-5 w-5 text-gray-500" />;
       default:
