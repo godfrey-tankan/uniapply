@@ -1,9 +1,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 const ScrollReveal = ({
   children,
-  className = '',
+  className,
   delay = 0,
   direction = 'up',
   threshold = 0.1,
@@ -57,12 +58,15 @@ const ScrollReveal = ({
     return '';
   };
 
-  const combinedClasses = `transition-all duration-700 ${getAnimationClass()} ${getTransformClass()} ${className}`;
-
   return (
     <div
       ref={ref}
-      className={combinedClasses}
+      className={cn(
+        'transition-all duration-700',
+        getAnimationClass(),
+        getTransformClass(),
+        className
+      )}
       style={{ animationDelay: `${delay}ms` }}
     >
       {children}
