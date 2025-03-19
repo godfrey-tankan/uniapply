@@ -16,12 +16,10 @@ const loginSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
-
 const Login = () => {
   const { login, isLoading } = useAuth();
 
-  const form = useForm<LoginFormValues>({
+  const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
@@ -29,7 +27,7 @@ const Login = () => {
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data) => {
     // Ensure all required fields are present
     const loginData = {
       email: data.email,
@@ -92,12 +90,7 @@ const Login = () => {
                 >
                   <LogIn className="mr-2 h-4 w-4 text-white" />
                   {isLoading ? "Signing In..." : "Sign In"}
-
                 </Button>
-
-
-
-
               </form>
             </Form>
           </CardContent>

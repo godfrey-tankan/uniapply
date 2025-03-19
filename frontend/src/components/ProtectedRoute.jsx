@@ -1,15 +1,9 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-  requiresStudent?: boolean;
-  requiresLecturer?: boolean;
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+const ProtectedRoute = ({
   children,
   requiresStudent = false,
   requiresLecturer = false,
