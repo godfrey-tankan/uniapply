@@ -43,7 +43,7 @@ const Login = () => {
     <div className="container flex items-center justify-center min-h-screen py-20">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/lecturer-dashboard" className="flex items-center gap-2">
             <GraduationCap className="h-10 w-10 text-university-DEFAULT" />
             <span className="text-2xl font-display font-semibold text-university-DEFAULT">UniApply</span>
           </Link>

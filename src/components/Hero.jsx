@@ -9,7 +9,7 @@ const Hero = () => {
       {/* Decorative elements */}
       <div className="absolute top-40 left-20 w-64 h-64 bg-blue-200/20 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-10 w-96 h-96 bg-indigo-100/20 rounded-full blur-3xl -z-10" />
-      
+
       <div className="container px-4 mx-auto pt-16 md:pt-20 lg:pt-32 pb-16">
         <div className="flex flex-col lg:flex-row gap-12 items-center">
           <div className="w-full lg:w-1/2">
@@ -18,20 +18,20 @@ const Hero = () => {
                 University Central Application System
               </p>
             </ScrollReveal>
-            
+
             <ScrollReveal delay={300}>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-blue-900 leading-tight mb-6">
                 Your Future <br />
                 <span className="text-blue-600">Begins Here</span>
               </h1>
             </ScrollReveal>
-            
+
             <ScrollReveal delay={500}>
               <p className="text-lg text-gray-600 mb-8 max-w-xl">
                 One application platform for all universities. Discover programs, track applications, and secure your academic future with our streamlined application system.
               </p>
             </ScrollReveal>
-            
+
             <ScrollReveal delay={700}>
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
                 <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full py-4 px-8 text-base font-medium flex items-center">
@@ -43,7 +43,7 @@ const Hero = () => {
                 </button>
               </div>
             </ScrollReveal>
-            
+
             <ScrollReveal delay={900}>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex items-center">
@@ -65,7 +65,7 @@ const Hero = () => {
               </div>
             </ScrollReveal>
           </div>
-          
+
           <div className="w-full lg:w-1/2">
             <ScrollReveal delay={500} direction="left">
               <div className="relative">
@@ -91,8 +91,8 @@ const Hero = () => {
                     </div>
                   </div>
                 </div>
-                <img 
-                  src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                <img
+                  src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
                   alt="University Students"
                   className="w-full h-auto object-cover rounded-2xl shadow-xl"
                   style={{ minHeight: '500px' }}

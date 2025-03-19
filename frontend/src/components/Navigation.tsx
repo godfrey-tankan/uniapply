@@ -47,7 +47,7 @@ const Navigation = () => {
           <Button variant="ghost" size="icon">
             <Search className="h-5 w-5" />
           </Button>
-          
+
           {isAuthenticated ? (
             <>
               <Link to={user?.is_student ? "/student-dashboard" : "/lecturer-dashboard"}>
@@ -55,8 +55,8 @@ const Navigation = () => {
                   Dashboard
                 </Button>
               </Link>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="gap-2"
                 onClick={logout}
               >
@@ -97,35 +97,35 @@ const Navigation = () => {
         {isMobileMenuOpen && (
           <div className="fixed inset-x-0 top-[72px] bg-white/95 backdrop-blur-md shadow-md p-4 border-t border-gray-100 animate-fade-in z-40 md:hidden">
             <nav className="flex flex-col gap-4 mb-4">
-              <a 
-                href="#programs" 
+              <a
+                href="#programs"
                 className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Programs
               </a>
-              <a 
-                href="#statistics" 
+              <a
+                href="#statistics"
                 className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Statistics
               </a>
-              <a 
-                href="#news" 
+              <a
+                href="#news"
                 className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 News & Memos
               </a>
-              <a 
-                href="#about" 
+              <a
+                href="#about"
                 className="px-4 py-2 text-sm font-medium rounded-md hover:bg-gray-100"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 About
               </a>
-              
+
               {isAuthenticated ? (
                 <>
                   <Link
@@ -169,7 +169,7 @@ const Navigation = () => {
                 <Search className="h-4 w-4 mr-2" />
                 Search
               </Button>
-              
+
               {!isAuthenticated && (
                 <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
                   <Button className="bg-university-DEFAULT hover:bg-university-DEFAULT/90 w-full">
