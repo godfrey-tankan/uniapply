@@ -1,112 +1,116 @@
 
-import React, { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { getApplications } from "@/services/applicationService";
-import { 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  AlertCircle, 
-  Clock3,
-  FileX
-} from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Eye, FileText, AlertCircle } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const ApplicationsList = () => {
-  const { user } = useAuth();
   const [applications, setApplications] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchApplications = async () => {
-    if (!user?.id) return;
-    
-    setIsLoading(true);
-    const apps = await getApplications(user.id);
-    setApplications(apps);
-    setIsLoading(false);
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchApplications();
-  }, [user]);
+    // Simulate loading applications
+    const timer = setTimeout(() => {
+      // Sample data for demonstration
+      const sampleApplications = [
+        { 
+          id: 1, 
+          program: 'Computer Science', 
+          submissionDate: '2023-09-15', 
+          startDate: '2024-01-10',
+          status: 'pending'
+        },
+        { 
+          id: 2, 
+          program: 'Business Administration', 
+          submissionDate: '2023-08-20', 
+          startDate: '2024-01-10',
+          status: 'approved'
+        },
+        { 
+          id: 3, 
+          program: 'Engineering', 
+          submissionDate: '2023-07-05', 
+          startDate: '2023-09-05',
+          status: 'rejected'
+        }
+      ];
+      
+      setApplications(sampleApplications);
+      setLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'Approved':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'Rejected':
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      case 'Pending':
-        return <Clock className="h-5 w-5 text-blue-500" />;
-      case 'Deferred':
-        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
-      case 'Waitlisted':
-        return <Clock3 className="h-5 w-5 text-orange-500" />;
-      case 'Withdrawn':
-        return <FileX className="h-5 w-5 text-gray-500" />;
-      default:
-        return <Clock className="h-5 w-5 text-gray-500" />;
-    }
+  const viewDetails = (id) => {
+    toast({
+      title: "Application Details",
+      description: `Viewing details for application #${id}`
+    });
   };
 
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 'Approved':
-        return "bg-green-100 text-green-800";
-      case 'Rejected':
-        return "bg-red-100 text-red-800";
-      case 'Pending':
-        return "bg-blue-100 text-blue-800";
-      case 'Deferred':
-        return "bg-yellow-100 text-yellow-800";
-      case 'Waitlisted':
-        return "bg-orange-100 text-orange-800";
-      case 'Withdrawn':
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">My Applications</h2>
-        <div className="flex justify-center">
-          <div className="animate-pulse">Loading applications...</div>
-        </div>
+      <div className="bg-white p-6 rounded-lg shadow flex justify-center items-center h-40">
+        <p className="text-gray-500">Loading applications...</p>
       </div>
     );
   }
 
   if (applications.length === 0) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">My Applications</h2>
-        <p className="text-gray-600">You haven't submitted any applications yet.</p>
+      <div className="bg-white p-6 rounded-lg shadow flex flex-col items-center justify-center h-40">
+        <p className="text-gray-500 mb-4">No applications submitted yet</p>
       </div>
     );
   }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow">
-      <h2 className="text-xl font-semibold mb-4">My Applications</h2>
       <div className="space-y-4">
         {applications.map((app) => (
-          <div key={app.id} className="flex items-center justify-between p-4 border rounded-md">
-            <div className="flex items-center">
-              {getStatusIcon(app.status)}
-              <div className="ml-3">
-                <p className="font-medium">{app.program_name}</p>
-                <p className="text-sm text-gray-500">{app.university_name}</p>
+          <div key={app.id} className="p-4 border border-gray-200 rounded-md">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="font-medium">{app.program}</h3>
+                <p className="text-sm text-gray-500">
+                  Submitted: {app.submissionDate} • Start date: {app.startDate}
+                </p>
+              </div>
+              <div className={`px-2 py-1 text-xs font-medium rounded-full ${
+                app.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                app.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+                'bg-amber-100 text-amber-800'
+              }`}>
+                {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
               </div>
             </div>
-            <div className="text-right">
-              <span className={`text-xs px-2 py-1 rounded-full ${getStatusClass(app.status)}`}>
-                {app.status}
-              </span>
-              <p className="text-xs text-gray-500 mt-1">
-                Applied on {new Date(app.date_applied).toLocaleDateString()}
-              </p>
+            
+            <div className="mt-4 flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-1"
+                onClick={() => viewDetails(app.id)}
+              >
+                <Eye className="h-3.5 w-3.5" />
+                View Details
+              </Button>
+              
+              {app.status === 'pending' && (
+                <div className="flex items-center text-amber-600 text-sm">
+                  <AlertCircle className="h-3.5 w-3.5 mr-1" />
+                  Waiting for review
+                </div>
+              )}
+              
+              {app.status === 'approved' && (
+                <div className="flex items-center text-green-600 text-sm">
+                  <FileText className="h-3.5 w-3.5 mr-1" />
+                  Acceptance letter available
+                </div>
+              )}
             </div>
           </div>
         ))}
