@@ -1,91 +1,59 @@
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { getUserProfile, loginUser, logoutUser, registerUser, UserProfile, LoginData, RegisterData } from "@/services/api";
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { getUserProfile, logoutUser, UserProfile } from "@/services/authService";
 
 interface AuthContextType {
   user: UserProfile | null;
-  isLoading: boolean;
   isAuthenticated: boolean;
-  login: (data: LoginData) => Promise<boolean>;
-  register: (data: RegisterData) => Promise<boolean>;
+  isLoading: boolean;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const checkAuth = async () => {
-    if (localStorage.getItem("authToken")) {
-      try {
-        const userData = await getUserProfile();
-        setUser(userData);
-      } catch (error) {
-        console.error("Auth check error:", error);
-      }
-    }
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const login = async (data: LoginData): Promise<boolean> => {
+  const refreshUser = async () => {
     setIsLoading(true);
-    const token = await loginUser(data);
-    
-    if (token) {
-      const userData = await getUserProfile();
-      setUser(userData);
-      
-      if (userData) {
-        // Redirect based on user type
-        if (userData.is_student) {
-          navigate("/student-dashboard");
-        } else {
-          navigate("/lecturer-dashboard");
-        }
-        return true;
-      }
+    try {
+      const profile = await getUserProfile();
+      setUser(profile);
+    } catch (error) {
+      console.error("Error refreshing user:", error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
-    return false;
-  };
-
-  const register = async (data: RegisterData): Promise<boolean> => {
-    setIsLoading(true);
-    const success = await registerUser(data);
-    setIsLoading(false);
-    
-    if (success) {
-      navigate("/login");
-      return true;
-    }
-    
-    return false;
   };
 
   const logout = () => {
     logoutUser();
     setUser(null);
-    navigate("/");
   };
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (localStorage.getItem("authToken")) {
+        await refreshUser();
+      } else {
+        setIsLoading(false);
+      }
+    };
+    
+    checkAuth();
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isLoading,
         isAuthenticated: !!user,
-        login,
-        register,
+        isLoading,
         logout,
+        refreshUser,
       }}
     >
       {children}
