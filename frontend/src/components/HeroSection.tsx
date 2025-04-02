@@ -1,46 +1,49 @@
 
 import React from 'react';
 import { ArrowRight, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center pt-28 pb-20 px-6 overflow-hidden bg-hero-pattern">
       <div className="absolute top-0 right-0 w-full h-full bg-gradient-radial from-transparent to-teal/5 opacity-70"></div>
-      
+
       <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
         <div className="flex flex-col max-w-xl animate-fade-in">
           <div className="inline-flex items-center px-3 py-1 rounded-full bg-teal/10 text-teal text-sm font-medium mb-6">
             <CheckCircle size={16} className="mr-2" />
-            <span>Application Season 2024 Is Now Open</span>
+            <span>Application Season 2025 Is Now Open</span>
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-navy dark:text-white leading-tight mb-6">
             Your Gateway to <span className="text-shimmer">Academic Excellence</span>
           </h1>
-          
+
           <p className="text-lg text-slate-dark dark:text-slate-light mb-8">
             One application, multiple universities. Simplify your journey to higher education with our unified application platform connecting you to top universities nationwide.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <button className="px-8 py-3 bg-teal text-white rounded-md hover:bg-teal-dark transition-colors flex items-center justify-center">
-              <span>Start Application</span>
+              <Link to="/dashboard" >
+                Start Application
+              </Link>
               <ArrowRight size={18} className="ml-2" />
             </button>
             <button className="px-8 py-3 bg-white border border-slate text-navy rounded-md hover:bg-slate/5 transition-colors dark:bg-transparent dark:text-white">
               Explore Programs
             </button>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="flex -space-x-3">
               <div className="w-10 h-10 rounded-full bg-teal/20 flex items-center justify-center text-teal text-xs">
                 94%
               </div>
-              <div className="w-10 h-10 rounded-full bg-navy-light/20 flex items-center justify-center text-navy-light text-xs dark:bg-white/20 dark:text-white">
+              <div className="w-10 h-10 rounded-full bg-navy-light/30 flex items-center justify-center text-navy-light text-xs dark:bg-white/20 dark:text-white">
                 87%
               </div>
-              <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold text-xs">
+              <div className="w-10 h-10 rounded-full bg-gold/70 flex items-center justify-center text-navy-light text-xs">
                 91%
               </div>
             </div>
@@ -49,7 +52,7 @@ const HeroSection = () => {
             </p>
           </div>
         </div>
-        
+
         <div className="relative animate-fade-in-right">
           <div className="aspect-square max-w-md mx-auto relative">
             <div className="absolute inset-0 bg-gradient-to-tr from-teal to-navy-light opacity-10 rounded-full blur-3xl"></div>
@@ -71,7 +74,7 @@ const HeroSection = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="absolute top-10 -right-8 bg-white rounded-lg p-4 shadow-lg glass animate-float animate-delay-200">
               <div className="w-40 h-24 flex flex-col justify-between">
                 <div className="text-xs text-slate">Applications Status</div>
@@ -82,7 +85,7 @@ const HeroSection = () => {
                 <div className="text-xs text-teal">+18% from last year</div>
               </div>
             </div>
-            
+
             <div className="absolute -bottom-8 -left-8 bg-white rounded-lg p-4 shadow-lg glass animate-float animate-delay-300">
               <div className="w-40 h-24 flex flex-col justify-between">
                 <div className="text-xs text-slate">Acceptance Rate</div>

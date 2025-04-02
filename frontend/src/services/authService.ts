@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 export interface RegisterData {
@@ -21,15 +20,37 @@ export interface UserProfile {
   is_student: boolean;
 }
 
-const API_URL = "http://127.0.0.1:8000/auth";
+const API_URL = "http://127.0.0.1:8000/auth"; // Ensure correct API prefix
 
-export const registerUser = async (data: RegisterData): Promise<boolean> => {
+// 🔹 Function to refresh the access token
+const refreshAccessToken = async (): Promise<string | null> => {
+  try {
+    const refreshToken = localStorage.getItem("refresh");
+    if (!refreshToken) return null;
+
+    const response = await fetch(`${API_URL}/token/refresh/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    localStorage.setItem("authToken", data.access);
+    return data.access;
+  } catch (error) {
+    console.error('Error refreshing access token:', error);
+    return null;
+  }
+};
+
+// 🔹 Register a new user
+const registerUser = async (data: RegisterData): Promise<boolean> => {
   try {
     const response = await fetch(`${API_URL}/register/`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
@@ -47,13 +68,12 @@ export const registerUser = async (data: RegisterData): Promise<boolean> => {
   }
 };
 
-export const loginUser = async (data: LoginData): Promise<string | null> => {
+// 🔹 Login and store tokens
+const loginUser = async (data: LoginData): Promise<boolean> => {
   try {
     const response = await fetch(`${API_URL}/login/`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
@@ -63,53 +83,67 @@ export const loginUser = async (data: LoginData): Promise<string | null> => {
     }
 
     const responseData = await response.json();
-    const token = responseData.token;
+    localStorage.setItem("authToken", responseData.access); // Save access token
+    localStorage.setItem("refresh", responseData.refresh); // Save refresh token
 
-    // Store the token in localStorage
-    localStorage.setItem("authToken", token);
     toast.success("Login successful!");
-
-    return token;
+    return true;
   } catch (error) {
     console.error("Login error:", error);
     toast.error(error instanceof Error ? error.message : "Login failed");
-    return null;
+    return false;
   }
 };
 
-export const getUserProfile = async (): Promise<UserProfile | null> => {
+// 🔹 Fetch the authenticated user profile
+const getUserProfile = async (): Promise<UserProfile | null> => {
   try {
-    const token = localStorage.getItem("authToken");
+    let accessToken = localStorage.getItem("authToken");
 
-    if (!token) {
-      throw new Error("No authentication token found");
+    if (!accessToken) {
+      accessToken = await refreshAccessToken();
+      if (!accessToken) return null;
     }
 
-    const response = await fetch(`${API_URL}/profile/`, {
+    let response = await fetch(`${API_URL}/profile/`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
+    if (response.status === 401) {
+      accessToken = await refreshAccessToken();
+      if (!accessToken) return null;
+
+      response = await fetch(`${API_URL}/profile/`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+    }
+
     if (!response.ok) {
-      if (response.status === 401) {
-        localStorage.removeItem("authToken");
-        throw new Error("Session expired. Please log in again.");
-      }
-      throw new Error("Failed to fetch user profile");
+      console.error('Failed to fetch profile');
+      return null;
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Profile fetch error:", error);
-    toast.error(error instanceof Error ? error.message : "Failed to fetch profile");
+    console.error('Profile fetch error:', error);
     return null;
   }
 };
 
-export const logoutUser = (): void => {
-  localStorage.removeItem("authToken");
-  toast.success("Logged out successfully");
+// 🔹 Refresh the user profile by fetching updated profile data
+const refreshUser = async (): Promise<UserProfile | null> => {
+  return await getUserProfile();
 };
+
+// 🔹 Logout user and clear tokens
+const logoutUser = (): void => {
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("refresh");
+  toast.success("Logged out successfully");
+  window.location.reload(); // Reload the page to reset state
+};
+
+// 🔹 Ensure all functions are properly exported
+export { registerUser, loginUser, getUserProfile, logoutUser, refreshAccessToken, refreshUser };

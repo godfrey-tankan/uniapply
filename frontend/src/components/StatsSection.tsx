@@ -48,17 +48,17 @@ const StatsSection = () => {
                   >
                     <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} opacity={0.2} />
                     <XAxis type="number" tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                    <YAxis 
-                      dataKey="name" 
-                      type="category" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#94a3b8' }} 
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#94a3b8' }}
                       width={100}
                     />
                     <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
-                    <Bar 
-                      dataKey="value" 
+                    <Bar
+                      dataKey="value"
                       radius={[0, 4, 4, 0]}
                     />
                   </BarChart>
@@ -79,7 +79,7 @@ const StatsSection = () => {
                 <span>12% increase from previous cycle</span>
               </div>
             </div>
-            
+
             <div className="bg-white rounded-xl p-6 shadow-md dark:bg-navy-dark/50 dark:border dark:border-white/10 animate-fade-in animate-delay-200">
               <div className="w-12 h-12 bg-navy/10 rounded-full flex items-center justify-center mb-4">
                 <BookOpen className="text-navy dark:text-teal" size={24} />
@@ -90,7 +90,7 @@ const StatsSection = () => {
                 <span>Across 128 participating universities</span>
               </div>
             </div>
-            
+
             <div className="bg-white rounded-xl p-6 shadow-md dark:bg-navy-dark/50 dark:border dark:border-white/10 animate-fade-in animate-delay-300">
               <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-4">
                 <Clock className="text-gold" size={24} />
@@ -102,13 +102,13 @@ const StatsSection = () => {
                 <span>3 days faster than last year</span>
               </div>
             </div>
-            
+
             <div className="bg-gradient-to-br from-teal to-navy-light rounded-xl p-6 shadow-md animate-fade-in animate-delay-400">
               <h3 className="text-2xl font-bold text-white mb-4">Application Deadline</h3>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white/80 mb-1">Fall Semester</p>
-                  <p className="text-white font-medium">March 30, 2024</p>
+                  <p className="text-white font-medium">April 30, 2025</p>
                 </div>
                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold">58</span>

@@ -30,7 +30,7 @@ const Footer = () => {
               </a>
             </div>
           </div>
-          
+
           <div>
             <h4 className="text-lg font-bold mb-6">Quick Links</h4>
             <ul className="space-y-3">
@@ -54,7 +54,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="text-lg font-bold mb-6">Support</h4>
             <ul className="space-y-3">
@@ -75,17 +75,17 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="text-lg font-bold mb-6">Contact</h4>
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPin size={20} className="text-teal mr-3 flex-shrink-0 mt-0.5" />
-                <span className="text-white/70">123 Education Avenue, Academic District, ED 12345</span>
+                <span className="text-white/70">2335 Causeway st, Harare, Harare</span>
               </li>
               <li className="flex items-center">
                 <Phone size={20} className="text-teal mr-3 flex-shrink-0" />
-                <span className="text-white/70">+1 (123) 456-7890</span>
+                <span className="text-white/70">+263 (779) 586-059</span>
               </li>
               <li className="flex items-center">
                 <Mail size={20} className="text-teal mr-3 flex-shrink-0" />
@@ -98,7 +98,7 @@ const Footer = () => {
                 <input
                   type="email"
                   placeholder="Your email"
-                  className="px-4 py-2 rounded-l-md bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:outline-none focus:border-teal"
+                  className="px-4 py-2 rounded-l-md bg-white/10 border md: max-w-40 border-white/20 text-white placeholder:text-white/50 focus:outline-none focus:border-teal"
                 />
                 <button className="px-4 py-2 bg-teal text-white rounded-r-md hover:bg-teal-dark transition-colors">
                   Subscribe
@@ -107,7 +107,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="pt-8 border-t border-white/10 text-center">
           <p className="text-white/50 text-sm">
             © {new Date().getFullYear()} UniApply. All rights reserved.

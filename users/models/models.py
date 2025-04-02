@@ -17,6 +17,9 @@ class User(AbstractUser):
     verified_at = models.DateTimeField(null=True, blank=True)
     last_active = models.DateTimeField(null=True, blank=True)
     deactivated_at = models.DateTimeField(null=True, blank=True)
+    a_level_points = models.IntegerField(null=True, blank=True,default=0)
+    o_level_subjects = models.IntegerField(null=True, blank=True,default=0)
+    gender = models.CharField(blank=True, null=True, max_length=20, default='Not Specified')
     
     # System-wide role
     is_system_admin = models.BooleanField(default=False)
@@ -28,7 +31,9 @@ class User(AbstractUser):
         related_name='system_users',
         limit_choices_to={'is_system_role': True}
     )
-    
+    phone_number = models.CharField(blank=True, null=True,max_length=20)
+    province = models.CharField(blank=True, null=True,max_length=50)
+    country = models.CharField(blank=True, null=True,max_length=50)
     is_student = models.BooleanField(default=False)
     is_university_admin = models.BooleanField(default=False)
     

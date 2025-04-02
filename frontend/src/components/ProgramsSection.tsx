@@ -4,12 +4,12 @@ import { Search, BookOpen, Users, Star, ArrowRight, Filter } from 'lucide-react'
 
 const ProgramsSection = () => {
   const [filter, setFilter] = useState('all');
-  
+
   const programs = [
     {
       id: 1,
       name: 'Computer Science & AI',
-      university: 'Cambridge Technical University',
+      university: 'University of Zimbabwe',
       category: 'engineering',
       applicants: 1245,
       rating: 4.8,
@@ -19,7 +19,7 @@ const ProgramsSection = () => {
     {
       id: 2,
       name: 'Business Administration',
-      university: 'National Business School',
+      university: 'Chinhoyi University of Technology',
       category: 'business',
       applicants: 945,
       rating: 4.6,
@@ -29,7 +29,7 @@ const ProgramsSection = () => {
     {
       id: 3,
       name: 'Mechanical Engineering',
-      university: 'Institute of Technology',
+      university: 'National University of Science and Technology',
       category: 'engineering',
       applicants: 732,
       rating: 4.5,
@@ -39,7 +39,7 @@ const ProgramsSection = () => {
     {
       id: 4,
       name: 'Medicine & Healthcare',
-      university: 'Medical Sciences Academy',
+      university: 'University of Zimbabwe',
       category: 'medicine',
       applicants: 1532,
       rating: 4.9,
@@ -49,7 +49,7 @@ const ProgramsSection = () => {
     {
       id: 5,
       name: 'Environmental Science',
-      university: 'Global Environmental Institute',
+      university: 'Bindura University of Science Education',
       category: 'science',
       applicants: 612,
       rating: 4.4,
@@ -59,7 +59,7 @@ const ProgramsSection = () => {
     {
       id: 6,
       name: 'Digital Marketing',
-      university: 'Creative Media University',
+      university: 'Harare Institute of Technology',
       category: 'business',
       applicants: 875,
       rating: 4.7,
@@ -68,8 +68,8 @@ const ProgramsSection = () => {
     },
   ];
 
-  const filteredPrograms = filter === 'all' 
-    ? programs 
+  const filteredPrograms = filter === 'all'
+    ? programs
     : programs.filter(program => program.category === filter);
 
   return (
@@ -91,55 +91,50 @@ const ProgramsSection = () => {
               className="pl-10 pr-4 py-3 w-full rounded-md border border-slate/20 focus:outline-none focus:ring-2 focus:ring-teal/50 transition-all"
             />
           </div>
-          
+
           <div className="w-full md:w-auto flex items-center gap-4 overflow-x-auto pb-2 no-scrollbar">
-            <button 
+            <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-md whitespace-nowrap ${
-                filter === 'all' 
-                ? 'bg-teal text-white' 
-                : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
-              } transition-colors`}
+              className={`px-4 py-2 rounded-md whitespace-nowrap ${filter === 'all'
+                  ? 'bg-teal text-white'
+                  : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
+                } transition-colors`}
             >
               All Programs
             </button>
-            <button 
+            <button
               onClick={() => setFilter('engineering')}
-              className={`px-4 py-2 rounded-md whitespace-nowrap ${
-                filter === 'engineering' 
-                ? 'bg-teal text-white' 
-                : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
-              } transition-colors`}
+              className={`px-4 py-2 rounded-md whitespace-nowrap ${filter === 'engineering'
+                  ? 'bg-teal text-white'
+                  : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
+                } transition-colors`}
             >
               Engineering
             </button>
-            <button 
+            <button
               onClick={() => setFilter('business')}
-              className={`px-4 py-2 rounded-md whitespace-nowrap ${
-                filter === 'business' 
-                ? 'bg-teal text-white' 
-                : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
-              } transition-colors`}
+              className={`px-4 py-2 rounded-md whitespace-nowrap ${filter === 'business'
+                  ? 'bg-teal text-white'
+                  : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
+                } transition-colors`}
             >
               Business
             </button>
-            <button 
+            <button
               onClick={() => setFilter('medicine')}
-              className={`px-4 py-2 rounded-md whitespace-nowrap ${
-                filter === 'medicine' 
-                ? 'bg-teal text-white' 
-                : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
-              } transition-colors`}
+              className={`px-4 py-2 rounded-md whitespace-nowrap ${filter === 'medicine'
+                  ? 'bg-teal text-white'
+                  : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
+                } transition-colors`}
             >
               Medicine
             </button>
-            <button 
+            <button
               onClick={() => setFilter('science')}
-              className={`px-4 py-2 rounded-md whitespace-nowrap ${
-                filter === 'science' 
-                ? 'bg-teal text-white' 
-                : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
-              } transition-colors`}
+              className={`px-4 py-2 rounded-md whitespace-nowrap ${filter === 'science'
+                  ? 'bg-teal text-white'
+                  : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
+                } transition-colors`}
             >
               Science
             </button>
@@ -151,15 +146,15 @@ const ProgramsSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredPrograms.map((program, index) => (
-            <div 
-              key={program.id} 
+            <div
+              key={program.id}
               className="bg-white rounded-xl overflow-hidden shadow-md card-hover dark:bg-navy-dark/50 dark:border dark:border-white/10 animate-fade-in"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={program.image} 
-                  alt={program.name} 
+                <img
+                  src={program.image}
+                  alt={program.name}
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                 />
                 {program.new && (
@@ -171,7 +166,7 @@ const ProgramsSection = () => {
               <div className="p-6">
                 <h3 className="text-xl font-bold text-navy mb-2 dark:text-white">{program.name}</h3>
                 <p className="text-slate mb-4">{program.university}</p>
-                
+
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-1.5">
                     <Users size={16} className="text-slate" />
@@ -182,7 +177,7 @@ const ProgramsSection = () => {
                     <span className="text-sm text-slate">{program.rating}/5.0</span>
                   </div>
                 </div>
-                
+
                 <button className="w-full py-2.5 bg-teal/10 text-teal rounded-md hover:bg-teal/20 transition-colors flex items-center justify-center gap-2">
                   <span>View Details</span>
                   <ArrowRight size={16} />
@@ -191,7 +186,7 @@ const ProgramsSection = () => {
             </div>
           ))}
         </div>
-        
+
         <div className="mt-12 text-center">
           <button className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-teal text-teal rounded-md hover:bg-teal/5 transition-colors dark:bg-transparent">
             <span>View All Programs</span>

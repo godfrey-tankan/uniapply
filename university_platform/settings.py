@@ -26,9 +26,11 @@ SECRET_KEY = 'django-insecure-^nnouue(63wc3uamna6z7jiw3z@&ds9pr4av51y&4nn#gbj4)@
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+SESSION_COOKIE_SECURE = False  # Use this only for local development, set to True in production
+SESSION_COOKIE_DOMAIN = None 
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
+SESSION_COOKIE_AGE = 60 * 60 * 24 
 
 # Application definition
 
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     #Installed Third party apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_filters',
     
     
     #Installed Local apps
@@ -52,6 +55,7 @@ INSTALLED_APPS = [
     'documents',
     'recommendations',
     'notifications',
+    'institutions',
 ]
 
 MIDDLEWARE = [
@@ -59,7 +63,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -116,13 +120,12 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", 
-    "http://127.0.0.1:5173",
+    "http://localhost:8080",
 ]
 
-
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8080",'http://*.127.0.0.1']
+CSRF_COOKIE_SECURE = False
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -148,7 +151,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Harare'
 
 USE_I18N = True
 
@@ -156,7 +159,7 @@ USE_TZ = True
 AUTH_USER_MODEL = 'users.User'
 
 
-
+LOGIN_REDIRECT_URL = '/dashboardd'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 

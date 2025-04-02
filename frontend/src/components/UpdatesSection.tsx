@@ -75,19 +75,18 @@ const UpdatesSection = () => {
             <h3 className="text-2xl font-bold text-navy mb-6 dark:text-white">Latest News</h3>
             <div className="space-y-6">
               {updates.map((update, index) => (
-                <div 
-                  key={update.id} 
+                <div
+                  key={update.id}
                   className="bg-white rounded-xl p-6 shadow-md card-hover dark:bg-navy-dark/50 dark:border dark:border-white/10 animate-fade-in"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        update.category === 'Announcement' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${update.category === 'Announcement' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
                         update.category === 'Important Notice' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
-                        update.category === 'Scholarship' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
-                        'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
-                      }`}>
+                          update.category === 'Scholarship' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                            'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                        }`}>
                         {update.category}
                       </span>
                       {update.important && (
@@ -105,10 +104,10 @@ const UpdatesSection = () => {
                       {update.timeToRead}
                     </div>
                   </div>
-                  
+
                   <h4 className="text-lg font-bold text-navy mb-2 dark:text-white">{update.title}</h4>
                   <p className="text-slate-dark mb-4 dark:text-slate-light">{update.excerpt}</p>
-                  
+
                   <button className="inline-flex items-center text-teal hover:text-teal-dark transition-colors">
                     <span>Read more</span>
                     <ChevronRight size={16} className="ml-1" />
@@ -132,7 +131,7 @@ const UpdatesSection = () => {
                 <h4 className="text-lg font-bold mb-1">Admin Memos</h4>
                 <p className="text-white/80 text-sm">Important notices for all users</p>
               </div>
-              
+
               <div className="divide-y divide-slate/10">
                 {memos.map((memo) => (
                   <div key={memo.id} className="p-4 hover:bg-slate/5 transition-colors">
@@ -147,7 +146,7 @@ const UpdatesSection = () => {
                   </div>
                 ))}
               </div>
-              
+
               <div className="p-4 bg-slate/5 dark:bg-navy-light/5">
                 <button className="w-full py-2 text-sm text-center text-navy dark:text-white hover:underline">
                   View All Memos
@@ -160,11 +159,11 @@ const UpdatesSection = () => {
               <p className="mb-6">Early decision applications for Fall 2024 are closing soon. Don't miss the opportunity to secure your spot.</p>
               <div className="bg-white/20 rounded-lg p-4">
                 <div className="text-xs mb-1">Deadline</div>
-                <div className="text-lg font-bold">February 15, 2024</div>
+                <div className="text-lg font-bold">August 15, 2025</div>
                 <div className="w-full h-1.5 bg-white/20 rounded-full mt-2 overflow-hidden">
-                  <div className="w-2/3 h-full bg-white"></div>
+                  <div className="w-1/3 h-full bg-white"></div>
                 </div>
-                <div className="text-xs mt-1">30 days remaining</div>
+                <div className="text-xs mt-1">3 Months remaining</div>
               </div>
               <button className="w-full py-3 bg-white text-teal font-medium rounded-md mt-4 hover:bg-white/90 transition-colors">
                 Submit Your Application

@@ -12,6 +12,8 @@ import { Switch } from "@/components/ui/switch";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
+  province: z.string().min(2, "province must be at least 2 characters"),
+  gender: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirm_password: z.string().min(8, "Password must be at least 8 characters"),
@@ -32,6 +34,8 @@ const RegisterForm = ({ onSuccess }: { onSuccess: () => void }) => {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
+      province: "",
+      gender: "",
       email: "",
       password: "",
       confirm_password: "",
@@ -71,10 +75,10 @@ const RegisterForm = ({ onSuccess }: { onSuccess: () => void }) => {
               <div className="relative">
                 <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <FormControl>
-                  <Input 
-                    placeholder="John Doe" 
-                    className="pl-10" 
-                    {...field} 
+                  <Input
+                    placeholder="John Doe"
+                    className="pl-10"
+                    {...field}
                   />
                 </FormControl>
               </div>
@@ -92,11 +96,53 @@ const RegisterForm = ({ onSuccess }: { onSuccess: () => void }) => {
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <FormControl>
-                  <Input 
-                    placeholder="you@example.com" 
-                    className="pl-10" 
-                    {...field} 
+                  <Input
+                    placeholder="you@example.com"
+                    className="pl-10"
+                    {...field}
                   />
+                </FormControl>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="gender"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gender</FormLabel>
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <FormControl>
+                  <Input
+                    placeholder="gender"
+                    type="select"
+                    className="pl-10"
+                    {...field}
+                  />e
+                </FormControl>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="province"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Province</FormLabel>
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <FormControl>
+                  <Input
+                    placeholder="Harare"
+                    type="select"
+                    className="pl-10"
+                    {...field}
+                  />e
                 </FormControl>
               </div>
               <FormMessage />
@@ -183,9 +229,9 @@ const RegisterForm = ({ onSuccess }: { onSuccess: () => void }) => {
           )}
         />
 
-        <Button 
-          type="submit" 
-          className="w-full bg-teal hover:bg-teal-dark" 
+        <Button
+          type="submit"
+          className="w-full bg-teal hover:bg-teal-dark"
           disabled={isLoading}
         >
           {isLoading ? "Creating Account..." : "Create Account"}
