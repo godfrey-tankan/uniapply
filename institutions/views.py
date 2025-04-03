@@ -1,7 +1,7 @@
 # views.py
 from rest_framework import viewsets
 from .models import Institution, Faculty, Department, Program
-from .serializers import InstitutionSerializer, FacultySerializer, DepartmentSerializer, ProgramSerializer, ProgramRequirementsSerializer
+from .serializers import InstitutionSerializer, FacultySerializer, DepartmentSerializer, ProgramSerializer, ProgramRequirementsSerializer,ProgramSectionSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -9,6 +9,9 @@ from applications.models import Application
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.db.models import Count, Avg
 from datetime import datetime
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes
 
 
 
@@ -26,6 +29,38 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def public_programs(request):
+    programs = Program.objects.all().select_related('department__faculty__institution')
+    serializer = ProgramSectionSerializer(programs, many=True)
+    return Response(serializer.data)
+
+class ProgramSectionViewSet(viewsets.ModelViewSet):
+    queryset = Program.objects.all().select_related('department__faculty__institution')
+    serializer_class = ProgramSectionSerializer
+    permission_classes = [AllowAny]  # This should make it public
+    authentication_classes = []
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = {
+        'department__name': ['icontains'],
+        'department__faculty__institution__name': ['icontains'],
+        'name': ['icontains'],
+    }
+    def list(self, request, *args, **kwargs):
+        print("DEBUG: Entering list endpoint")  # Add debug print
+        print(f"DEBUG: User: {request.user}, Authenticated: {request.user.is_authenticated}")
+        return super().list(request, *args, **kwargs)
+
+    @action(detail=False, methods=['get'])
+    def categories(self, request):
+        categories = [
+            {'id': 'engineering', 'name': 'Engineering'},
+            {'id': 'business', 'name': 'Business'},
+            {'id': 'medicine', 'name': 'Medicine'},
+            {'id': 'science', 'name': 'Science'},
+        ]
+        return Response(categories)
 
 class ProgramViewSet(viewsets.ModelViewSet):
     queryset = Program.objects.all()

@@ -2,11 +2,59 @@
 from rest_framework import serializers
 from .models import Institution, Faculty, Department, Program
 from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
+from datetime import timedelta
+import random
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = '__all__'
+
+class ProgramSectionSerializer(serializers.ModelSerializer):
+    institution_name = serializers.CharField(source='department.faculty.institution.name', read_only=True)
+    category = serializers.SerializerMethodField()
+    is_new = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Program
+        fields = [
+            'id', 'name', 'code', 'description', 'min_points_required',
+            'total_enrollment', 'start_date', 'end_date', 'fee',
+            'institution_name', 'category', 'is_new', 'rating', 'image',
+            'department'
+        ]
+        depth = 2  # This will include nested department, faculty, and institution data
+
+    def get_category(self, obj):
+        # You might want to add a category field to your Program model
+        # or determine it based on department name
+        department_name = obj.department.name.lower()
+        if 'engineering' in department_name:
+            return 'engineering'
+        elif 'business' in department_name:
+            return 'business'
+        elif 'medicine' in department_name:
+            return 'medicine'
+        else:
+            return 'science'
+
+    def get_is_new(self, obj):
+        # Consider a program new if it was created in the last 3 months
+        return obj.start_date > (timezone.now() - timedelta(days=90)).date()
+
+    def get_rating(self, obj):
+        # You might want to implement a rating system
+        return round(4.5 + (random.random() * 0.5), 1)  # Random rating for demo
+
+    def get_image(self, obj):
+        # You might want to add an image field to your Program model
+        # or use institution logo
+        return 'https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'
         
 class ProgramRequirementsSerializer(serializers.ModelSerializer):
     required_subjects = serializers.SerializerMethodField()

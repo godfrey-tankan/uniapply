@@ -292,7 +292,6 @@ class EnrollmentViewSet(viewsets.ViewSet):
         authentication_classes=[]  # This disables authentication for this endpoint
     )
     def stats(self, request):
-        print('////////////////////')
         # Get current date and calculate important time periods
         today = datetime.now().date()
         current_year_start = datetime(today.year, 1, 1).date()
