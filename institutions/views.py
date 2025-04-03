@@ -1,7 +1,15 @@
 # views.py
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from .models import Institution, Faculty, Department, Program
-from .serializers import InstitutionSerializer, FacultySerializer, DepartmentSerializer, ProgramSerializer, ProgramRequirementsSerializer,ProgramSectionSerializer
+from .serializers import (
+    InstitutionSerializer, 
+    FacultySerializer,
+    DepartmentSerializer, 
+    ProgramSerializer,
+    ProgramRequirementsSerializer,
+    ProgramSectionSerializer,
+    PublicProgramSerializer
+)
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -170,7 +178,18 @@ class InstitutionProgramsView(APIView):
 
 class ProgramDetailsViewSet(viewsets.ModelViewSet):
     queryset = Program.objects.all()
-    serializer_class = ProgramSerializer
+    
+    def get_serializer_class(self):
+        # Use public serializer for unauthenticated requests
+        if not self.request.user.is_authenticated:
+            return PublicProgramSerializer
+        return ProgramSerializer
+
+    def get_permissions(self):
+        # Only require authentication for stats and other sensitive actions
+        if self.action in ['stats']:
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
 
     @action(detail=True, methods=['get'])
     def stats(self, request, pk=None):

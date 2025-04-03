@@ -6,6 +6,41 @@ import { useNavigate } from 'react-router-dom';
 import Footer from './Footer';
 import Navbar from './Navbar';
 
+// Image dictionary
+const PROGRAM_IMAGES = {
+  engineering: [
+    'https://images.unsplash.com/photo-1627634777217-c864268db30c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'https://images.unsplash.com/photo-1581094794329-c811329a7274?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'https://images.unsplash.com/photo-1581094271901-8022df4466f9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+  ],
+  business: [
+    'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+  ],
+  medicine: [
+    'https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+  ],
+  science: [
+    'https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'https://images.unsplash.com/photo-1564325724739-bae0bd08762c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    'https://images.unsplash.com/photo-1575505586569-646b2ca898fc?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+  ],
+  other: [
+    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60',
+    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60',
+    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'
+  ]
+};
+
+// Helper function to get a random image
+const getRandomImage = (category: string) => {
+  const images = PROGRAM_IMAGES[category as keyof typeof PROGRAM_IMAGES] || PROGRAM_IMAGES.other;
+  return images[Math.floor(Math.random() * images.length)];
+};
+
 interface Program {
   id: number;
   name: string;
@@ -23,6 +58,8 @@ interface Program {
   rating?: number;
   is_new?: boolean;
   category?: string;
+  institution_name?: string;
+  imageCategory?: string;
 }
 
 const ProgramsSection = ({ showAll = false }) => {
@@ -32,6 +69,16 @@ const ProgramsSection = ({ showAll = false }) => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+
+  const getProgramCategory = (departmentName?: string) => {
+    if (!departmentName) return 'other';
+    const lowerName = departmentName.toLowerCase();
+    if (lowerName.includes('engineering')) return 'engineering';
+    if (lowerName.includes('business')) return 'business';
+    if (lowerName.includes('medicine')) return 'medicine';
+    if (lowerName.includes('science')) return 'science';
+    return 'other';
+  };
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -59,16 +106,6 @@ const ProgramsSection = ({ showAll = false }) => {
     return new Date(startDate) > twoYearsAgo;
   };
 
-  const getProgramCategory = (departmentName?: string) => {
-    if (!departmentName) return 'other';
-    const lowerName = departmentName.toLowerCase();
-    if (lowerName.includes('engineering')) return 'engineering';
-    if (lowerName.includes('business')) return 'business';
-    if (lowerName.includes('medicine')) return 'medicine';
-    if (lowerName.includes('science')) return 'science';
-    return 'other';
-  };
-
   const filteredPrograms = filter === 'all'
     ? programs
     : programs.filter(program => program.category === filter);
@@ -85,56 +122,13 @@ const ProgramsSection = ({ showAll = false }) => {
     : filteredPrograms;
 
   const displayedPrograms = showAll ? searchedPrograms : searchedPrograms.slice(0, 6);
+
   if (loading) {
-    return (
-      <section id="programs" className="section">
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <Skeleton className="h-8 w-64 mx-auto mb-4" />
-            <Skeleton className="h-4 w-96 mx-auto" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, index) => (
-              <div key={index} className="bg-white rounded-xl overflow-hidden shadow-md dark:bg-navy-dark/50">
-                <Skeleton className="h-48 w-full" />
-                <div className="p-6">
-                  <Skeleton className="h-6 w-3/4 mb-2" />
-                  <Skeleton className="h-4 w-1/2 mb-4" />
-                  <div className="flex justify-between mb-6">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-16" />
-                  </div>
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
+    return <LoadingSkeleton />;
   }
 
   if (error) {
-    return (
-      <section id="programs" className="section">
-        <div className="container mx-auto">
-          <div className="text-center py-12">
-            <div className="bg-red-50 p-4 rounded-lg max-w-md mx-auto">
-              <div className="flex items-center justify-center gap-2 text-red-600">
-                <AlertCircle className="h-5 w-5" />
-                <p>Error loading programs: {error}</p>
-              </div>
-              <button
-                onClick={() => window.location.reload()}
-                className="mt-3 text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
+    return <ErrorDisplay error={error} />;
   }
 
   return (
@@ -142,61 +136,128 @@ const ProgramsSection = ({ showAll = false }) => {
       <Navbar />
       <section id="programs" className="section">
         <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="section-title">{showAll ? 'All Programs' : 'Featured Programs'}</h2>
-            <p className="section-subtitle">
-              {showAll ? 'Browse through our comprehensive list of academic programs' : 'Discover our featured academic programs'}
-            </p>
-          </div>
-          <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6">
-            <div className="relative w-full md:w-1/3">
-              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate" />
-              <input
-                type="text"
-                placeholder="Search programs, departments or institutions..."
-                className="pl-10 pr-4 py-3 w-full rounded-md border border-slate/20 focus:outline-none focus:ring-2 focus:ring-teal/50 transition-all"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            <div className="w-full md:w-auto flex items-center gap-4 overflow-x-auto pb-2 no-scrollbar">
-              {['all', 'engineering', 'business', 'medicine', 'science'].map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setFilter(category)}
-                  className={`px-4 py-2 rounded-md whitespace-nowrap capitalize ${filter === category
-                    ? 'bg-teal text-white'
-                    : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
-                    } transition-colors`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayedPrograms.map((program) => (
-              <ProgramCard
-                key={program.id}
-                program={program}
-                onClick={() => navigate(`/api/program-details/${program.id}/stats`)}
-              />
-            ))}
-          </div>
-
-          {displayedPrograms.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500">No programs found matching your criteria</p>
-            </div>
-          )}
+          <Header showAll={showAll} />
+          <SearchAndFilter
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            filter={filter}
+            setFilter={setFilter}
+          />
+          <ProgramGrid
+            programs={displayedPrograms}
+            navigate={navigate}
+          />
+          {displayedPrograms.length === 0 && <NoProgramsFound />}
         </div>
       </section>
-      <Footer />
+      {showAll && <Footer />}
     </div>
   );
 };
+
+const LoadingSkeleton = () => (
+  <section id="programs" className="section">
+    <div className="container mx-auto">
+      <div className="text-center mb-16">
+        <Skeleton className="h-8 w-64 mx-auto mb-4" />
+        <Skeleton className="h-4 w-96 mx-auto" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {[...Array(6)].map((_, index) => (
+          <div key={index} className="bg-white rounded-xl overflow-hidden shadow-md dark:bg-navy-dark/50">
+            <Skeleton className="h-48 w-full" />
+            <div className="p-6">
+              <Skeleton className="h-6 w-3/4 mb-2" />
+              <Skeleton className="h-4 w-1/2 mb-4" />
+              <div className="flex justify-between mb-6">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+              <Skeleton className="h-10 w-full rounded-md" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const ErrorDisplay = ({ error }: { error: string }) => (
+  <section id="programs" className="section">
+    <div className="container mx-auto">
+      <div className="text-center py-12">
+        <div className="bg-red-50 p-4 rounded-lg max-w-md mx-auto">
+          <div className="flex items-center justify-center gap-2 text-red-600">
+            <AlertCircle className="h-5 w-5" />
+            <p>Error loading programs: {error}</p>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-3 text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const Header = ({ showAll }: { showAll: boolean }) => (
+  <div className="text-center mb-16">
+    <h2 className="section-title">{showAll ? 'All Programs' : 'Featured Programs'}</h2>
+    <p className="section-subtitle">
+      {showAll ? 'Browse through our comprehensive list of academic programs' : 'Discover our featured academic programs'}
+    </p>
+  </div>
+);
+
+const SearchAndFilter = ({ searchQuery, setSearchQuery, filter, setFilter }: any) => (
+  <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6">
+    <div className="relative w-full md:w-1/3">
+      <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate" />
+      <input
+        type="text"
+        placeholder="Search programs, departments or institutions..."
+        className="pl-10 pr-4 py-3 w-full rounded-md border border-slate/20 focus:outline-none focus:ring-2 focus:ring-teal/50 transition-all"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+    </div>
+    <div className="w-full md:w-auto flex items-center gap-4 overflow-x-auto pb-2 no-scrollbar">
+      {['all', 'engineering', 'business', 'medicine', 'science'].map((category) => (
+        <button
+          key={category}
+          onClick={() => setFilter(category)}
+          className={`px-4 py-2 rounded-md whitespace-nowrap capitalize ${filter === category
+            ? 'bg-teal text-white'
+            : 'bg-slate/10 text-navy-light hover:bg-slate/20 dark:text-white dark:bg-white/5 dark:hover:bg-white/10'
+            } transition-colors`}
+        >
+          {category}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const ProgramGrid = ({ programs, navigate }: { programs: Program[], navigate: any }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {programs.map((program) => (
+      <ProgramCard
+        key={program.id}
+        program={program}
+        onClick={() => navigate(`/api/program-details/${program.id}/stats`)}
+      />
+    ))}
+  </div>
+);
+
+const NoProgramsFound = () => (
+  <div className="text-center py-12">
+    <p className="text-gray-500">No programs found matching your criteria</p>
+  </div>
+);
 
 const ProgramCard = ({ program, onClick }: { program: Program, onClick: () => void }) => (
   <div
@@ -205,7 +266,7 @@ const ProgramCard = ({ program, onClick }: { program: Program, onClick: () => vo
   >
     <div className="relative h-48 overflow-hidden">
       <img
-        src={program.image || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'}
+        src={program.image || getRandomImage(program.category || 'other')}
         alt={program.name}
         className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
       />
@@ -222,7 +283,6 @@ const ProgramCard = ({ program, onClick }: { program: Program, onClick: () => vo
         <p className="text-slate text-sm">{program.department?.name || 'Unknown Department'}</p>
         <p className="text-slate text-sm">Points Required: {program.min_points_required}</p>
       </div>
-
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-1.5">
           <Star size={16} className="text-gold" />
@@ -231,7 +291,6 @@ const ProgramCard = ({ program, onClick }: { program: Program, onClick: () => vo
           </span>
         </div>
       </div>
-
       <button
         className="w-full py-2.5 bg-teal/10 text-teal rounded-md hover:bg-teal/20 transition-colors flex items-center justify-center gap-2"
       >

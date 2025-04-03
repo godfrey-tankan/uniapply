@@ -13,6 +13,15 @@ class ProgramSerializer(serializers.ModelSerializer):
         model = Program
         fields = '__all__'
 
+class PublicProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ['id', 'name', 'code', 'description', 'min_points_required', 
+                'requirements', 'start_date', 'end_date', 'total_enrollment',
+                'department']
+
+
+
 class ProgramSectionSerializer(serializers.ModelSerializer):
     institution_name = serializers.CharField(source='department.faculty.institution.name', read_only=True)
     category = serializers.SerializerMethodField()

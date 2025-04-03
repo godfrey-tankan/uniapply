@@ -14,4 +14,7 @@ urlpatterns = [
     path('institutions/<int:institution_id>/programs/', InstitutionProgramsView.as_view(), name='institution-programs'),
     path('programs/recommendations/',  ProgramViewSet.as_view({'get': 'recommendations'}),name='program-recommendations'),
     path('all-program-details/', public_programs, name='all-program-details'),
+    path('public/program-details/<int:pk>/', 
+         ProgramDetailsViewSet.as_view({'get': 'retrieve'}), 
+         name='public-program-details'),
 ] + router.urls
