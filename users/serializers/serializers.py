@@ -1,14 +1,28 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate, get_user_model
-
+from users.models.models import EducationHistory, UserDocument
+import os
+from django.utils import timezone
 User = get_user_model()
 
 # 🔹 User Serializer (For fetching user data)
 class UserSerializer(serializers.ModelSerializer):
+    education_history = serializers.SerializerMethodField()
+    documents = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'is_student', 'is_university_admin', 'is_system_admin','a_level_points', 'o_level_subjects']
+        fields = [
+            'id', 'email', 'name', 'is_student', 'is_university_admin', 'is_system_admin',
+            'a_level_points', 'o_level_subjects', 'gender', 'phone_number', 'province',
+            'country', 'education_history', 'documents'
+        ]
 
+    def get_education_history(self, obj):
+        return EducationHistorySerializer(obj.education_history.all(), many=True).data
+
+    def get_documents(self, obj):
+        return UserDocumentSerializer(obj.user_documents.all(), many=True).data
 # 🔹 Register Serializer (For user sign-up)
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
@@ -65,3 +79,73 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError({"error": "This account is deactivated. Contact support."})
         
         return user
+
+
+class EducationHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EducationHistory
+        fields = '__all__'
+        read_only_fields = ('user', 'created_at', 'updated_at')
+class UserDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserDocument
+        fields = '__all__'
+        read_only_fields = ('user', 'uploaded_at', 'verified_at')
+
+    def validate_file(self, value):
+        valid_extensions = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png']
+        ext = os.path.splitext(value.name)[1].lower()
+        if ext not in valid_extensions:
+            raise serializers.ValidationError("Unsupported file extension")
+        if value.size > 10 * 1024 * 1024:
+            raise serializers.ValidationError("File size cannot exceed 10MB")
+        return value
+
+    def validate_document_type(self, value):
+        return value.upper()
+class UserProfileCompletionSerializer(serializers.ModelSerializer):
+    education_history_count = serializers.SerializerMethodField()
+    documents_count = serializers.SerializerMethodField()
+    completion_percentage = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'education_history_count',
+            'documents_count',
+            'completion_percentage',
+            'a_level_points',
+            'o_level_subjects',
+            'gender',
+            'phone_number',
+            'province',
+            'country'
+        ]
+
+    def get_education_history_count(self, obj):
+        return obj.education_history.count()
+
+    def get_documents_count(self, obj):
+        return obj.user_documents.count()
+
+    def get_has_personal_statement(self, obj):
+        # Assuming you have a field or method to check personal statement
+        return hasattr(obj, 'personal_statement') and bool(obj.personal_statement)
+
+    def get_completion_percentage(self, obj):
+        total_fields = 5  # Adjust based on your completion criteria
+        completed = 0
+        
+        if obj.education_history.exists():
+            completed += 1
+        if obj.user_documents.exists():
+            completed += 1
+        if obj.a_level_points:
+            completed += 1
+        if obj.o_level_subjects:
+            completed += 1
+        if obj.gender and obj.gender != 'Not Specified':
+            completed += 1
+            
+        return int((completed / total_fields) * 100)
+    

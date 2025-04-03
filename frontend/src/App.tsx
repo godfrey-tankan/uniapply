@@ -16,6 +16,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ApplicationPage from "./pages/Application";
 import ApplicationDetails from "./pages/ApplicationDetails";
 import ProgramDetails from "./pages/ProgramDetails";
+import ProfileCompletionPage from "./pages/ProfileCompletionPage";
+import ApplicationReviewPage from '@/pages/ApplicationReviewPage';
 
 const queryClient = new QueryClient();
 
@@ -44,9 +46,11 @@ const App = () => (
               <Route path="/student-dashboard" element={<StudentDashboard />} />
               <Route path="/apply" element={<ApplicationPage />} />
               <Route path="/applications/:id" element={<ApplicationDetails />} />
+              <Route path="/profile/complete" element={<ProfileCompletionPage />} />
             </Route>
 
             <Route element={<ProtectedRoute allowedRoles={["is_university_admin"]} />}>
+              <Route path="/review-application/:id" element={<ApplicationReviewPage />} />
               <Route path="/enroller-dashboard" element={<EnrollerDashboard />} />
             </Route>
 

@@ -5,6 +5,9 @@ import Footer from '../components/Footer';
 import Loading from '@/components/Loading';
 import SuccessPopup from '@/components/SuccessPopup';
 import { useAuth } from '@/contexts/AuthContext';
+import { ChevronLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.baseURL = backendUrl;
@@ -34,11 +37,10 @@ const ApplicationPage = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [institutionSearch, setInstitutionSearch] = useState('');
-    const [programSearch, setProgramSearch] = useState('');
     const [pointsError, setPointsError] = useState('');
     const [showPointsError, setShowPointsError] = useState(false);
     const [existingApplications, setExistingApplications] = useState([]);
+    const [activeTab, setActiveTab] = useState('deadlines');
 
     useEffect(() => {
         const token = localStorage.getItem('authToken');
@@ -119,7 +121,6 @@ const ApplicationPage = () => {
             const response = await axios.get(`/api/institutions/${institutionId}/programs/`);
             setPrograms(response.data);
             setFilteredPrograms(response.data);
-            setProgramSearch('');
         } catch (error) {
             console.error('Error fetching programs:', error);
             setError('Failed to load programs. Please try again.');
@@ -270,7 +271,16 @@ const ApplicationPage = () => {
     return (
         <div className="min-h-screen flex flex-col bg-slate-50">
             <main className="flex-grow container mx-auto px-4 py-8">
+
                 <div className="max-w-4xl mx-auto bg-white p-6 md:p-8 shadow-lg rounded-xl border border-gray-100">
+                    <Button
+                        variant="ghost"
+                        onClick={() => navigate('/dashboard')}
+                        className="mb-6 flex items-center gap-2"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                        Back to Dashboard
+                    </Button>
                     {showSuccessPopup && (
                         <SuccessPopup
                             message="Application submitted successfully! Redirecting to program details..."

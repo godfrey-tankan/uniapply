@@ -12,5 +12,5 @@ router.register(r'program-details', ProgramDetailsViewSet, basename='program-det
 
 urlpatterns = [
     path('institutions/<int:institution_id>/programs/', InstitutionProgramsView.as_view(), name='institution-programs'),
-    path('api/programs/recommendations/',  ProgramViewSet.as_view({'get': 'recommendations'}),name='program-recommendations'),
+    path('programs/recommendations/',  ProgramViewSet.as_view({'get': 'recommendations'}),name='program-recommendations'),
 ] + router.urls

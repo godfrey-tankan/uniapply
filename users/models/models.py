@@ -20,7 +20,6 @@ class User(AbstractUser):
     a_level_points = models.IntegerField(null=True, blank=True,default=0)
     o_level_subjects = models.IntegerField(null=True, blank=True,default=0)
     gender = models.CharField(blank=True, null=True, max_length=20, default='Not Specified')
-    
     # System-wide role
     is_system_admin = models.BooleanField(default=False)
     system_role = models.ForeignKey(
@@ -91,8 +90,6 @@ class User(AbstractUser):
         if isinstance(permission, str):
             return self.user_permissions.filter(codename=permission).exists()
         return self.user_permissions.filter(id=permission.id).exists()
-
-
 class Role(models.Model):
     name = models.CharField(max_length=255, unique=True)
     is_system_role = models.BooleanField(default=False)
@@ -110,3 +107,47 @@ class Role(models.Model):
         if isinstance(permission, str):
             return self.permissions.filter(codename=permission).exists()
         return self.permissions.filter(id=permission.id).exists()
+    
+
+class EducationHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='education_history')
+    institution = models.CharField(max_length=255)
+    qualification = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    is_current = models.BooleanField(default=False)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = 'Education Histories'
+        ordering = ['-end_date', '-start_date']
+
+    def __str__(self):
+        return f"{self.user.name} - {self.qualification} at {self.institution}"
+
+class UserDocument(models.Model):
+    DOCUMENT_TYPES = [
+        ('CV', 'Curriculum Vitae'),
+        ('TRANSCRIPT', 'Academic Transcript'),
+        ('CERTIFICATE', 'Certificate'),
+        ('PASSPORT', 'Passport'),
+        ('ID', 'ID Document'),
+        ('OTHER', 'Other'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_documents')
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
+    file = models.FileField(upload_to='user_documents/')
+    title = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True)
+    is_verified = models.BooleanField(default=False)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.name} - {self.file}"
+
+    class Meta:
+        ordering = ['-uploaded_at']

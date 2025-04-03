@@ -7,6 +7,7 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
   loading: boolean; // New loading state
   logout: () => void; // Add logout to the context
+  updateUser: (newData: any) => void; // Function to update user data
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,7 +42,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false); // Set loading to false after fetching
     }
   };
-
+  const updateUser = (newData: any) => {
+    setUser((prevUser) => ({ ...prevUser, ...newData }));
+  };
   // Logout function
   const logout = () => {
     setUser(null); // Clear the user data
@@ -56,7 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, refreshUser, loading, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, refreshUser, loading, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -126,8 +126,8 @@ class ApplicationStatusSerializer(serializers.ModelSerializer):
 class ActivityLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityLog
-        fields = ['id', 'user', 'action', 'description', 'timestamp', 'metadata']
-        read_only_fields = ['user', 'timestamp']
+        fields = ['action', 'description', 'timestamp', 'metadata']
+        read_only_fields = fields
 
 class DeadlineSerializer(serializers.ModelSerializer):
     class Meta:

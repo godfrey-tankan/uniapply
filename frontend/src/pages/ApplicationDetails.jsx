@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
-
+import Footer from '@/components/Footer'
 const ApplicationDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -200,9 +200,18 @@ const ApplicationDetails = () => {
                         <Sparkles className="h-4 w-4 text-purple-600" />
                         <h4 className="font-medium">Recommended Alternatives</h4>
                     </div>
-                    <div className="space-y-3">
+                    <div
+                        className="space-y-3 overflow-y-auto"
+                        style={{
+                            maxHeight: '400px',  // Fixed height
+                            scrollbarWidth: 'thin',  // For Firefox
+                        }}
+                    >
                         {recommendations.alternatives.map((program, index) => (
-                            <div key={index} className="bg-white p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                            <div
+                                key={index}
+                                className="bg-white p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+                            >
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <h5 className="font-medium">{program.program_name}</h5>
@@ -289,239 +298,301 @@ const ApplicationDetails = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-6xl mx-auto px-4 py-8">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
-                    <Button variant="ghost" onClick={() => navigate(-1)} className="flex items-center gap-2">
-                        <ArrowLeft className="h-5 w-5" />
-                        Back to Applications
-                    </Button>
-                    <div className="flex items-center gap-4">
-                        <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${application.status === 'Approved' ? 'bg-green-100 text-green-800' :
-                            application.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                application.status === 'Rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
-                            }`}>
-                            {getStatusIcon(application.status)}
-                            <span className="font-medium">{application.status}</span>
+        <div>
+            <div className="min-h-screen bg-gray-50">
+                <div className="max-w-6xl mx-auto px-4 py-8">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-8">
+                        <Button variant="ghost" onClick={() => navigate(-1)} className="flex items-center gap-2">
+                            <ArrowLeft className="h-5 w-5" />
+                            Back to Applications
+                        </Button>
+                        <div className="flex items-center gap-4">
+                            <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${application.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                                application.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                                    application.status === 'Rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                                }`}>
+                                {getStatusIcon(application.status)}
+                                <span className="font-medium">{application.status}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Main Content */}
+                        <div className="lg:col-span-2 space-y-6">
+                            {/* Application Overview */}
+                            <Card className="border-0 shadow-sm">
+                                <CardHeader>
+                                    <div className="flex items-center gap-4">
+                                        {application.institution.logo && (
+                                            <img
+                                                src={`${application.institution.logo}`}
+                                                alt="University logo"
+                                                className="h-16 w-16 object-contain"
+                                            />
+                                        )}
+                                        <div>
+                                            <h1 className="text-2xl font-bold">{application.program.name}</h1>
+                                            <p className="text-lg text-gray-600">{application.program.degree_level}</p>
+                                            <p className="text-gray-500">{application.institution.name}</p>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <h3 className="font-medium text-gray-900 mb-2">Application Details</h3>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Application ID</p>
+                                                    <p className="font-medium">{application.id}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Date Applied</p>
+                                                    <p className="font-medium">{formatDate(application.date_applied)}</p>
+                                                </div>
+                                                {application.date_status_changed && (
+                                                    <div>
+                                                        <p className="text-sm text-gray-500">Last Status Update</p>
+                                                        <p className="font-medium">{formatDate(application.date_status_changed)}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h3 className="font-medium text-gray-900 mb-2">Personal Statement</h3>
+                                            <div className="prose max-w-none text-gray-700 bg-gray-50 p-4 rounded-lg">
+                                                {application.personal_statement || 'No personal statement provided'}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h3 className="font-medium text-gray-900 mb-2">Submitted Documents</h3>
+                                            <div className="space-y-2">
+                                                {application.documents && application.documents.length > 0 ? (
+                                                    application.documents.map((doc, index) => (
+                                                        <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+                                                            <FileText className="h-5 w-5 text-teal-600" />
+                                                            <div className="flex-1">
+                                                                <p className="font-medium">{doc.file.split('/').pop()}</p>
+                                                                <p className="text-sm text-gray-500">{doc.document_type || 'Supporting Document'}</p>
+                                                            </div>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => window.open(`${doc.file}`, '_blank')}
+                                                            >
+                                                                View
+                                                            </Button>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <p className="text-gray-500 text-center py-4">No documents submitted</p>
+                                                )}
+                                                {application && (
+                                                    <div className={`p-4 rounded-xl relative overflow-hidden transition-all duration-300 ${application.admin_notes ?
+                                                        'bg-gradient-to-br from-gray-900 to-gray-800 shadow-xl animate-float' :
+                                                        'bg-gray-100 shadow-md'}`}
+                                                    >
+                                                        {/* Animated border and background elements */}
+                                                        {application.admin_notes && (
+                                                            <>
+                                                                <div className="absolute inset-0 rounded-xl border-2 border-transparent animate-rotate-border"></div>
+                                                                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 animate-flicker"></div>
+                                                            </>
+                                                        )}
+
+                                                        <div className="relative z-10">
+                                                            <span className={`px-3 py-1.5 rounded-full text-sm font-semibold inline-flex items-center gap-2 transition-all duration-300 ${application.admin_notes ?
+                                                                'bg-amber-500 text-gray-900 shadow-lg shadow-amber-500/30' :
+                                                                'bg-gray-200 text-gray-700 shadow'
+                                                                }`}
+                                                            >
+                                                                <svg
+                                                                    className={`h-5 w-5 transition-all duration-300 ${application.admin_notes ?
+                                                                        'text-gray-900 animate-bounce' :
+                                                                        'text-gray-600'
+                                                                        }`}
+                                                                    fill="none"
+                                                                    viewBox="0 0 24 24"
+                                                                    stroke="currentColor"
+                                                                >
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                <span className="relative">
+                                                                    Admission Notes
+                                                                    {application.admin_notes && (
+                                                                        <span className="absolute -right-2 -top-2 h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
+                                                                    )}
+                                                                </span>
+                                                            </span>
+
+                                                            <div className="mt-3 transition-all duration-300">
+                                                                <p className={`text-sm font-medium leading-relaxed ${application.admin_notes ?
+                                                                    'text-gray-100 drop-shadow-md' :
+                                                                    'text-gray-600 italic'
+                                                                    }`}
+                                                                >
+                                                                    {application.admin_notes || 'No notes available'}
+                                                                </p>
+
+                                                                {application.admin_notes && (
+                                                                    <div className="mt-2 flex justify-end">
+                                                                        <span className="text-xs text-amber-400/80 font-mono animate-pulse">
+                                                                            IMPORTANT
+                                                                        </span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Sidebar */}
+                        <div className="space-y-6">
+                            {/* Program Requirements */}
+                            <Card className="border-0 shadow-sm">
+                                <CardHeader>
+                                    <div className="flex items-center gap-2">
+                                        <BarChart2 className="h-5 w-5 text-teal-600" />
+                                        <CardTitle>Program Requirements</CardTitle>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    {programRequirements ? (
+                                        <div className="space-y-4">
+                                            <div className="flex justify-between items-center">
+                                                <p className="text-sm text-gray-700">Minimum A-Level Points</p>
+                                                <p className="font-medium">{programRequirements.min_points_required || 'Not specified'}</p>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <p className="text-sm text-gray-600">Required Subjects</p>
+                                                <div className="text-right ">
+                                                    {programRequirements.required_subjects?.length > 0 ? (
+                                                        programRequirements.required_subjects.map((subject, index) => (
+                                                            <p key={index} className="text-sm">{subject + " "}</p>
+                                                        ))
+                                                    ) : (
+                                                        <p className="font-medium">None specified</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <p className="text-sm text-gray-600">Acceptance Rate</p>
+                                                <p className="font-medium text-teal">
+                                                    {programRequirements.acceptance_rate ?
+                                                        `${programRequirements.acceptance_rate}%` : 'Not available'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <p className="text-gray-500 text-center py-4">Loading requirements...</p>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Recommendations */}
+                            <Card className="border-0 shadow-sm">
+                                <CardHeader>
+                                    <div className="flex items-center gap-2">
+                                        <School className="h-5 w-5 text-teal-600" />
+                                        <CardTitle>Admission Chances</CardTitle>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    {renderRecommendations()}
+                                </CardContent>
+                            </Card>
+
+                            {/* Timeline */}
+                            <Card className="border-0 shadow-sm">
+                                <CardHeader>
+                                    <CardTitle>Application Timeline</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        <div className="flex gap-4">
+                                            <div className="flex flex-col items-center">
+                                                <div className="w-6 h-6 rounded-full bg-teal-600 flex items-center justify-center">
+                                                    <CheckCircle className="h-4 w-4 text-white" />
+                                                </div>
+                                                <div className="w-px h-12 bg-gray-200 mt-1"></div>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium">Application Submitted</p>
+                                                <p className="text-sm text-gray-500">{formatDate(application.date_applied)}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-4">
+                                            <div className="flex flex-col items-center">
+                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${application.status !== 'Pending' ? 'bg-teal-600' : 'bg-gray-200'
+                                                    }`}>
+                                                    {application.status !== 'Pending' ? (
+                                                        <CheckCircle className="h-4 w-4 text-white" />
+                                                    ) : (
+                                                        <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                                                    )}
+                                                </div>
+                                                <div className="w-px h-12 bg-gray-200 mt-1"></div>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium">Under Review</p>
+                                                {application.status !== 'Pending' && application.date_status_changed ? (
+                                                    <p className="text-sm text-gray-500">Completed on {formatDate(application.date_status_changed)}</p>
+                                                ) : (
+                                                    <p className="text-sm text-gray-500">
+                                                        {programRequirements?.review_period ?
+                                                            `Typically takes ${programRequirements.review_period} weeks` :
+                                                            'In progress'}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-4">
+                                            <div className="flex flex-col items-center">
+                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${['Approved', 'Rejected'].includes(application.status) ? 'bg-teal-600' : 'bg-gray-200'
+                                                    }`}>
+                                                    {['Approved', 'Rejected'].includes(application.status) ? (
+                                                        <CheckCircle className="h-4 w-4 text-white" />
+                                                    ) : (
+                                                        <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium">Decision</p>
+                                                {['Approved', 'Rejected'].includes(application.status) ? (
+                                                    <p className="text-sm text-gray-500">
+                                                        {application.status} on {formatDate(application.date_status_changed)}
+                                                    </p>
+                                                ) : (
+                                                    <p className="text-sm text-gray-500">
+                                                        {programRequirements?.decision_period ?
+                                                            `Expected within ${programRequirements.decision_period} weeks` :
+                                                            'Pending'}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </div>
                 </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-6">
-                        {/* Application Overview */}
-                        <Card className="border-0 shadow-sm">
-                            <CardHeader>
-                                <div className="flex items-center gap-4">
-                                    {application.institution.logo && (
-                                        <img
-                                            src={`${application.institution.logo}`}
-                                            alt="University logo"
-                                            className="h-16 w-16 object-contain"
-                                        />
-                                    )}
-                                    <div>
-                                        <h1 className="text-2xl font-bold">{application.program.name}</h1>
-                                        <p className="text-lg text-gray-600">{application.program.degree_level}</p>
-                                        <p className="text-gray-500">{application.institution.name}</p>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-6">
-                                    <div>
-                                        <h3 className="font-medium text-gray-900 mb-2">Application Details</h3>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <p className="text-sm text-gray-500">Application ID</p>
-                                                <p className="font-medium">{application.id}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-sm text-gray-500">Date Applied</p>
-                                                <p className="font-medium">{formatDate(application.date_applied)}</p>
-                                            </div>
-                                            {application.date_status_changed && (
-                                                <div>
-                                                    <p className="text-sm text-gray-500">Last Status Update</p>
-                                                    <p className="font-medium">{formatDate(application.date_status_changed)}</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="font-medium text-gray-900 mb-2">Personal Statement</h3>
-                                        <div className="prose max-w-none text-gray-700 bg-gray-50 p-4 rounded-lg">
-                                            {application.personal_statement || 'No personal statement provided'}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="font-medium text-gray-900 mb-2">Submitted Documents</h3>
-                                        <div className="space-y-2">
-                                            {application.documents && application.documents.length > 0 ? (
-                                                application.documents.map((doc, index) => (
-                                                    <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
-                                                        <FileText className="h-5 w-5 text-teal-600" />
-                                                        <div className="flex-1">
-                                                            <p className="font-medium">{doc.file.split('/').pop()}</p>
-                                                            <p className="text-sm text-gray-500">{doc.document_type || 'Supporting Document'}</p>
-                                                        </div>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => window.open(`${doc.file}`, '_blank')}
-                                                        >
-                                                            View
-                                                        </Button>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <p className="text-gray-500 text-center py-4">No documents submitted</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* Sidebar */}
-                    <div className="space-y-6">
-                        {/* Program Requirements */}
-                        <Card className="border-0 shadow-sm">
-                            <CardHeader>
-                                <div className="flex items-center gap-2">
-                                    <BarChart2 className="h-5 w-5 text-teal-600" />
-                                    <CardTitle>Program Requirements</CardTitle>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                {programRequirements ? (
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center">
-                                            <p className="text-sm text-gray-700">Minimum A-Level Points</p>
-                                            <p className="font-medium">{programRequirements.min_points_required || 'Not specified'}</p>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <p className="text-sm text-gray-600">Required Subjects</p>
-                                            <div className="text-right ">
-                                                {programRequirements.required_subjects?.length > 0 ? (
-                                                    programRequirements.required_subjects.map((subject, index) => (
-                                                        <p key={index} className="text-sm">{subject + " "}</p>
-                                                    ))
-                                                ) : (
-                                                    <p className="font-medium">None specified</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <p className="text-sm text-gray-600">Acceptance Rate</p>
-                                            <p className="font-medium text-teal">
-                                                {programRequirements.acceptance_rate ?
-                                                    `${programRequirements.acceptance_rate}%` : 'Not available'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <p className="text-gray-500 text-center py-4">Loading requirements...</p>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        {/* Recommendations */}
-                        <Card className="border-0 shadow-sm">
-                            <CardHeader>
-                                <div className="flex items-center gap-2">
-                                    <School className="h-5 w-5 text-teal-600" />
-                                    <CardTitle>Admission Chances</CardTitle>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                {renderRecommendations()}
-                            </CardContent>
-                        </Card>
-
-                        {/* Timeline */}
-                        <Card className="border-0 shadow-sm">
-                            <CardHeader>
-                                <CardTitle>Application Timeline</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="flex gap-4">
-                                        <div className="flex flex-col items-center">
-                                            <div className="w-6 h-6 rounded-full bg-teal-600 flex items-center justify-center">
-                                                <CheckCircle className="h-4 w-4 text-white" />
-                                            </div>
-                                            <div className="w-px h-12 bg-gray-200 mt-1"></div>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium">Application Submitted</p>
-                                            <p className="text-sm text-gray-500">{formatDate(application.date_applied)}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-4">
-                                        <div className="flex flex-col items-center">
-                                            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${application.status !== 'Pending' ? 'bg-teal-600' : 'bg-gray-200'
-                                                }`}>
-                                                {application.status !== 'Pending' ? (
-                                                    <CheckCircle className="h-4 w-4 text-white" />
-                                                ) : (
-                                                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                                                )}
-                                            </div>
-                                            <div className="w-px h-12 bg-gray-200 mt-1"></div>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium">Under Review</p>
-                                            {application.status !== 'Pending' && application.date_status_changed ? (
-                                                <p className="text-sm text-gray-500">Completed on {formatDate(application.date_status_changed)}</p>
-                                            ) : (
-                                                <p className="text-sm text-gray-500">
-                                                    {programRequirements?.review_period ?
-                                                        `Typically takes ${programRequirements.review_period} weeks` :
-                                                        'In progress'}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-4">
-                                        <div className="flex flex-col items-center">
-                                            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${['Approved', 'Rejected'].includes(application.status) ? 'bg-teal-600' : 'bg-gray-200'
-                                                }`}>
-                                                {['Approved', 'Rejected'].includes(application.status) ? (
-                                                    <CheckCircle className="h-4 w-4 text-white" />
-                                                ) : (
-                                                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium">Decision</p>
-                                            {['Approved', 'Rejected'].includes(application.status) ? (
-                                                <p className="text-sm text-gray-500">
-                                                    {application.status} on {formatDate(application.date_status_changed)}
-                                                </p>
-                                            ) : (
-                                                <p className="text-sm text-gray-500">
-                                                    {programRequirements?.decision_period ?
-                                                        `Expected within ${programRequirements.decision_period} weeks` :
-                                                        'Pending'}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
             </div>
+            <Footer />
         </div>
     );
 };
