@@ -22,7 +22,7 @@ class ProgramAdmin(admin.ModelAdmin):
     search_fields = ['name','department__faculty__institution__name']  # Search by program name and institution name
     readonly_fields = ['id']
     fieldsets = (
-        (None, {'fields': ('id', 'name', 'department', 'min_points_required', 'total_enrollment', 'fee')}),
+        (None, {'fields': ('id', 'name', 'department', 'min_points_required', 'total_enrollment', 'fee','description', 'start_date', 'end_date', 'required_subjects')}),
     )
     ordering = ['name']
     list_per_page = 20

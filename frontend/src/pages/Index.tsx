@@ -3,11 +3,11 @@ import React, { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
 import StatsSection from '../components/StatsSection';
-import ProgramsSection from '../components/ProgramsSection';
 import AboutSection from '../components/AboutSection';
 import UpdatesSection from '../components/UpdatesSection';
 import TestimonialsSection from '../components/TestimonialsSection';
 import Footer from '../components/Footer';
+import HomeProgramsSection from '@/components/HomeProgramsSection';
 
 const Index = () => {
   useEffect(() => {
@@ -31,7 +31,7 @@ const Index = () => {
     // Cleanup
     return () => {
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.removeEventListener('click', function (e) {});
+        anchor.removeEventListener('click', function (e) { });
       });
     };
   }, []);
@@ -41,7 +41,7 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <StatsSection />
-      <ProgramsSection />
+      <HomeProgramsSection />
       <AboutSection />
       <UpdatesSection />
       <TestimonialsSection />

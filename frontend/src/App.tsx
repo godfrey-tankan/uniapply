@@ -18,6 +18,7 @@ import ApplicationDetails from "./pages/ApplicationDetails";
 import ProgramDetails from "./pages/ProgramDetails";
 import ProfileCompletionPage from "./pages/ProfileCompletionPage";
 import ApplicationReviewPage from '@/pages/ApplicationReviewPage';
+import ProgramsPage from './pages/ProgramsPage';
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/programs" element={<ProgramsPage />} />
 
             {/* 🔹 Route to Handle Dashboard Redirection */}
             <Route path="/dashboard" element={<DashboardRouter />} />
