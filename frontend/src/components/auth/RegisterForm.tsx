@@ -121,7 +121,7 @@ const RegisterForm = ({ onSuccess }: { onSuccess: () => void }) => {
                     type="select"
                     className="pl-10"
                     {...field}
-                  />e
+                  />
                 </FormControl>
               </div>
               <FormMessage />
@@ -142,7 +142,7 @@ const RegisterForm = ({ onSuccess }: { onSuccess: () => void }) => {
                     type="select"
                     className="pl-10"
                     {...field}
-                  />e
+                  />
                 </FormControl>
               </div>
               <FormMessage />

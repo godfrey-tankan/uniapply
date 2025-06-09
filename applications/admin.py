@@ -1,6 +1,6 @@
 from django.contrib import admin
-from applications.models import Application, ApplicationDocument
-from .models import ActivityLog, Deadline
+from applications.models.models import Application, ApplicationDocument
+from .models.models import ActivityLog, Deadline
 
 @admin.register(ActivityLog)
 class ActivityLogAdmin(admin.ModelAdmin):

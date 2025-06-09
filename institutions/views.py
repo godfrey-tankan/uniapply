@@ -13,7 +13,7 @@ from .serializers import (
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from applications.models import Application
+from applications.models.models import Application
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.db.models import Count, Avg
 from datetime import datetime

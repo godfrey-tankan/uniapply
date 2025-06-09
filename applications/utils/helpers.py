@@ -1,4 +1,4 @@
-from applications.models import ActivityLog
+from applications.models.models import ActivityLog
 from django.utils import timezone
 
 def _log_activity(self, user, action, description, metadata=None):

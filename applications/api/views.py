@@ -3,12 +3,12 @@ from rest_framework.response import Response
 
 from rest_framework import viewsets, filters, status, permissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from applications.models import Application, ApplicationDocument, Deadline, ActivityLog
+from applications.models.models import Application, ApplicationDocument, Deadline, ActivityLog
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import ApplicationSerializer, ApplicationStatusSerializer, ActivityLogSerializer
-from .permissions import IsStudentOwnerOrAdmin, IsAdminForStatusChange
+from .serializers.serializers import ApplicationSerializer, ApplicationStatusSerializer, ActivityLogSerializer
+from ..services.permissions import IsStudentOwnerOrAdmin, IsAdminForStatusChange
 from django.contrib.auth import get_user_model
 from django.db.models import Count, F, Q, Avg
 from datetime import datetime, timedelta

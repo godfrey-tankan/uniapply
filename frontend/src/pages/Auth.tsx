@@ -8,7 +8,7 @@ import RegisterForm from "@/components/auth/RegisterForm";
 
 const Auth = () => {
   const [activeTab, setActiveTab] = useState<string>("login");
-  
+
   const handleRegisterSuccess = () => {
     setActiveTab("login");
   };
@@ -25,8 +25,8 @@ const Auth = () => {
             {activeTab === "login" ? "Welcome Back" : "Create Your Account"}
           </h1>
           <p className="mt-2 text-gray-600">
-            {activeTab === "login" 
-              ? "Sign in to access your university applications" 
+            {activeTab === "login"
+              ? "Sign in to access your university applications"
               : "Join thousands of students finding their perfect university match"}
           </p>
         </div>
@@ -37,13 +37,13 @@ const Auth = () => {
               <TabsTrigger value="login">Log In</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="login">
               <LoginForm />
               <div className="mt-6 text-center text-sm">
                 <p className="text-gray-600">
                   Don't have an account?{" "}
-                  <button 
+                  <button
                     onClick={() => setActiveTab("register")}
                     className="text-teal font-medium hover:underline"
                   >
@@ -52,13 +52,13 @@ const Auth = () => {
                 </p>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="register">
               <RegisterForm onSuccess={handleRegisterSuccess} />
               <div className="mt-6 text-center text-sm">
                 <p className="text-gray-600">
                   Already have an account?{" "}
-                  <button 
+                  <button
                     onClick={() => setActiveTab("login")}
                     className="text-teal font-medium hover:underline"
                   >
@@ -69,7 +69,7 @@ const Auth = () => {
             </TabsContent>
           </Tabs>
         </div>
-        
+
         <div className="mt-8 text-center text-sm text-gray-500">
           <p>By continuing, you agree to UniApply's</p>
           <p className="mt-1">
