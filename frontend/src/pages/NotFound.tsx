@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import Footer from "@/components/Footer";
+import Chatbot from '@/components/Chatbot';
 
 
 const NotFound = () => {
@@ -24,6 +25,7 @@ const NotFound = () => {
           </a>
         </div>
       </div>
+      <Chatbot />
       <Footer />
     </div>
   );

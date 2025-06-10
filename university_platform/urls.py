@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from recommendations.views import ProgramRecommendationsForUserView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/programs/recommendations/for-user/', ProgramRecommendationsForUserView.as_view(), name='program-recommendations-for-user'),
     path('auth/', include('users.urls')),
     path('api/', include('applications.api.urls')),
     path('notifications/', include('notifications.urls')),

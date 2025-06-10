@@ -8,6 +8,8 @@ import UpdatesSection from '../components/UpdatesSection';
 import TestimonialsSection from '../components/TestimonialsSection';
 import Footer from '../components/Footer';
 import HomeProgramsSection from '@/components/HomeProgramsSection';
+import Chatbot from '@/components/Chatbot';
+
 
 const Index = () => {
   useEffect(() => {
@@ -45,6 +47,7 @@ const Index = () => {
       <AboutSection />
       <UpdatesSection />
       <TestimonialsSection />
+      <Chatbot />
       <Footer />
     </div>
   );

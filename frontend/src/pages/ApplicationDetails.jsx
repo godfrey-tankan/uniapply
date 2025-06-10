@@ -9,6 +9,8 @@ import {
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 import Footer from '@/components/Footer'
+import Chatbot from '@/components/Chatbot';
+
 const ApplicationDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -592,6 +594,7 @@ const ApplicationDetails = () => {
                     </div>
                 </div>
             </div>
+            <Chatbot />
             <Footer />
         </div>
     );

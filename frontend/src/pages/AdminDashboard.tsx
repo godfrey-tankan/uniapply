@@ -271,6 +271,7 @@ const AdminDashboard = () => {
         </main>
       </div>
       <Footer />
+      {/* <Chatbot /> */}
     </div>
   );
 };

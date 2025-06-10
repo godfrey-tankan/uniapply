@@ -12,15 +12,19 @@ from .serializers import (
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework import status
 from applications.models.models import Application
 from django.db.models.functions import ExtractMonth, ExtractYear
-from django.db.models import Count, Avg
-from datetime import datetime
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import AllowAny
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
+from django.db.models import Count, Avg, Q
+from datetime import datetime, timedelta
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+import random
 
+User = get_user_model()
 
 
 class InstitutionViewSet(viewsets.ModelViewSet):
@@ -175,6 +179,15 @@ class InstitutionProgramsView(APIView):
         ).filter(department__faculty__institution_id=institution_id)
         serializer = ProgramSerializer(programs, many=True)
         return Response(serializer.data)
+    
+class InstitutionNameProgramsView(APIView):
+    def get(self, request, institution_name):
+        programs = Program.objects.select_related(
+            'department__faculty__institution'
+        ).filter(department__faculty__institution__name__icontains=institution_name)
+        serializer = PublicProgramSerializer(programs, many=True)
+        return Response(serializer.data)
+
 
 class ProgramDetailsViewSet(viewsets.ModelViewSet):
     queryset = Program.objects.all()
@@ -250,4 +263,6 @@ class ProgramDetailsViewSet(viewsets.ModelViewSet):
             'gender': {item['student__gender']: item['count'] for item in gender_distribution},
             'regions': {item['student__province']: item['count'] for item in region_distribution}
         }
+
+
 

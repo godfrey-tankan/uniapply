@@ -7,12 +7,19 @@ import SuccessPopup from '@/components/SuccessPopup';
 import { useAuth } from '@/contexts/AuthContext';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Chatbot from '@/components/Chatbot';
+
 
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.baseURL = backendUrl;
+interface ApplicationPageProps {
+    onSuccess: () => void;
+    onCancel: () => void;
+}
 
-const ApplicationPage = () => {
+const ApplicationPage: React.FC<ApplicationPageProps> = ({ onSuccess, onCancel }) => {
+
     const { user } = useAuth();
     const navigate = useNavigate();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -58,6 +65,7 @@ const ApplicationPage = () => {
         }
         setLoading(false);
     }, [navigate, user]);
+
 
 
 
@@ -549,6 +557,7 @@ const ApplicationPage = () => {
                     )}
                 </div>
             </main>
+            <Chatbot />
             <Footer />
         </div>
     );

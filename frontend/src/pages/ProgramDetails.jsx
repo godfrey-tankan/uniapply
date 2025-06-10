@@ -22,6 +22,7 @@ import {
 } from 'recharts';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
+import Chatbot from '../components/Chatbot';
 
 const ApplicationTrendChart = ({ data }) => {
     return (
@@ -661,6 +662,7 @@ const ProgramDetails = () => {
                     </div>
                 </div>
             </div>
+            <Chatbot />
             <Footer />
         </div>
     );

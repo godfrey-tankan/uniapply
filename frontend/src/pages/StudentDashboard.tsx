@@ -8,6 +8,7 @@ import ApplicationPage from './Application';
 import Footer from '../components/Footer';
 import axios from 'axios';
 import Loading from '@/components/Loading';
+import Chatbot from '@/components/Chatbot';
 
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
@@ -84,8 +85,8 @@ const StudentDashboard = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
@@ -470,6 +471,7 @@ const StudentDashboard = () => {
 
         </main>
       </div>
+      <Chatbot />
       <Footer />
     </div>
   );

@@ -8,17 +8,27 @@ import random
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+class MinimalDepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'description']  
+        read_only_fields = ['id']
+    
 class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = '__all__'
 
 class PublicProgramSerializer(serializers.ModelSerializer):
+    department = serializers.SerializerMethodField()
     class Meta:
         model = Program
         fields = ['id', 'name', 'code', 'description', 'min_points_required', 
                 'requirements', 'start_date', 'end_date', 'total_enrollment',
                 'department']
+    def get_department(self, obj):
+        department_ob = Department.objects.get(id=obj.department.id)
+        return MinimalDepartmentSerializer(department_ob).data
 
 
 
@@ -95,6 +105,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = '__all__'
+
 
 
 class FacultySerializer(serializers.ModelSerializer):
