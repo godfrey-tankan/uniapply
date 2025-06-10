@@ -56,10 +56,10 @@ export const fetchPublicProgramDetails = async (pk) => {
     }
 };
 
-export const fetchProgramRecommendations = async () => {
+export const fetchProgramRecommendations = async (params = {}) => {
     try {
         // This is the correct endpoint for user-specific recommendations
-        const response = await axios.get(`${API_BASE_URL}/api/programs/recommendations/for-user/`, { headers: getAuthHeaders() });
+        const response = await axios.get(`${API_BASE_URL}/api/programs/recommendations/for-user/`, { headers: getAuthHeaders(), params });
 
         return response.data;
     } catch (error) {
@@ -96,7 +96,7 @@ export const fetchPlatformStats = async () => {
     try {
         // Your note says AllowAny, but adding headers is harmless if not needed and consistent.
         // If it truly is always public and requires no auth, you can remove headers.
-        const response = await axios.get(`${API_BASE_URL}/enrollment/stats/`, { headers: getAuthHeaders() });
+        const response = await axios.get(`${API_BASE_URL}/api/enrollment/stats/`, { headers: getAuthHeaders() });
         return response.data;
     } catch (error) {
         console.error('Error fetching platform stats:', error);

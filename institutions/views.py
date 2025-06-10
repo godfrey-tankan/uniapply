@@ -181,6 +181,7 @@ class InstitutionProgramsView(APIView):
         return Response(serializer.data)
     
 class InstitutionNameProgramsView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, institution_name):
         programs = Program.objects.select_related(
             'department__faculty__institution'

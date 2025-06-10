@@ -84,7 +84,13 @@ const tools = [
             {
                 name: 'getProgramRecommendations',
                 description: 'Recommends academic programs based on the user\'s profile data (A-level points, O-level subjects, gender, province, and country). This tool automatically uses the user\'s profile data. If the user\'s profile is incomplete, it will use the available information. Returns a list of recommended program objects with `program_id`, `program_name`, `institution`, `min_points_required`, `student_points`, `acceptance_probability`, and `required_subjects`.',
-                parameters: { type: 'object', properties: {} }, // No parameters needed, relies on profile data
+                parameters: {
+                    type: 'object',
+                    properties: {
+                        points: { type: 'integer', description: 'User\'s A-level points, if explicitly provided in the current query.' },
+                        interest: { type: 'string', description: 'The user\'s expressed academic interest (e.g., "tech", "medicine", "arts").' },
+                    },
+                }, // No parameters needed, relies on profile data
             },
             {
                 name: 'getProgramStats',
@@ -136,7 +142,7 @@ const model = genAI.getGenerativeModel({
         3.  **Clarify Ambiguity:** If a user's request is ambiguous, ask for clarification.
         4.  **Automatic Profile Data:** For program recommendations, automatically use the user's profile data retrieved by the \`getUserProfileData\` tool. Do not ask the user for their information. If the profile is incomplete, use the available data.
         5.  **Acknowledge Errors:** If a tool call fails, inform the user about the error and suggest rephrasing or providing more details. Do not apologize excessively.
-        6.  **Summarize Data:** When presenting lists (institutions, programs, applications), provide a concise summary or highlight key information, and offer to provide more details upon request.
+        6.  **Summarize and Format Data Clearly:** When presenting lists (institutions, programs, applications, recommendations, statistics), provide a concise summary and **always use bullet points or numbered lists for readability**. Highlight key information (e.g., program name, institution, points required, acceptance probability) using bolding. Offer to provide more details upon request.
         7.  **Guidance on Applications:** If a user asks about their applications, confirm that you can access their applications and then use the \`getUserApplications\` tool. If they ask about applying to a specific program, you can use \`checkIfUserAppliedToProgram\`.
         8.  **Proactive Information:** If appropriate, suggest relevant information that might be helpful based on their query.
         9.  **Format Responses Clearly:** Use bullet points, bolding, or other formatting to make responses easy to read.
@@ -147,12 +153,23 @@ const model = genAI.getGenerativeModel({
             * User: "What are the stats for program ID 123?" -> Use \`getProgramStats\`.
             * User: "How many students applied last year?" -> Use \`getPlatformStats\`.
             * User: "What applications have I submitted?" -> Use \`getUserApplications\`.
+            * User: "What activities have I performed?" -> Use \`getUserActivities\`.
+            * User: "Have I applied to program ID 456?" -> Use \`checkIfUserAppliedToProgram\`.
+        11. ** Data Presentation:** When presenting data, use clear formatting:
+        - **Institutions:** List with names and locations.
+        - **Programs:** List with names, codes, and institutions.
+        - **Applications:** List with program names, institutions, and statuses.
+        - **Recommendations:** List with program names, institutions, and acceptance probabilities.
+        - **Statistics:** Use bullet points for key stats, e.g., "Total Applicants: 5000", "Most Popular Program: Computer Science".
+        12. **Error Handling:** If a tool call fails, provide a clear error message and suggest rephrasing or providing more details. Do not apologize excessively.
+        13. **User Engagement:** Keep the conversation engaging and helpful. If the user seems stuck, offer to help them find information or clarify their request.
+        14. **Avoid Overloading with Information:** If the user asks for too much information, summarize key points and offer to provide more details if needed.
         `
+
 });
 
 // Helper function to convert Markdown to JSX
 const renderMarkdown = (markdownText) => {
-    // Escape HTML tags to prevent XSS (optional but good practice)
     let htmlText = markdownText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     // Bold: **text**
@@ -170,19 +187,18 @@ const renderMarkdown = (markdownText) => {
     let processedLines = [];
 
     lines.forEach(line => {
-        if (line.startsWith('- ') || line.startsWith('&bull; ') || line.match(/^\d+\.\s/)) { // Added numbered list support
+        if (line.startsWith('- ') || line.startsWith('&bull; ') || line.match(/^\d+\.\s/)) {
             if (!inList) {
-                processedLines.push('<ul>'); // Or <ol> if you want to distinguish numbered lists
+                processedLines.push('<ul>');
                 inList = true;
             }
-            // For simple bullet points, just remove the bullet
             let listItemContent = line;
             if (line.startsWith('- ')) {
                 listItemContent = line.substring(2);
             } else if (line.startsWith('&bull; ')) {
-                listItemContent = line.substring(7); // Length of '&bull; '
+                listItemContent = line.substring(7);
             } else if (line.match(/^\d+\.\s/)) {
-                listItemContent = line.replace(/^\d+\.\s/, ''); // Remove '1. ' etc.
+                listItemContent = line.replace(/^\d+\.\s/, '');
             }
             processedLines.push(`<li>${listItemContent}</li>`);
         } else {
@@ -194,12 +210,12 @@ const renderMarkdown = (markdownText) => {
         }
     });
 
-    if (inList) { // Close list if still open
+    if (inList) {
         processedLines.push('</ul>');
     }
 
     let finalHtml = processedLines.join('');
-    finalHtml = finalHtml.replace(/<br \/><br \/>/g, '<br />'); // Reduce double line breaks
+    finalHtml = finalHtml.replace(/<br \/><br \/>/g, '<br />');
 
     return <div dangerouslySetInnerHTML={{ __html: finalHtml }} />;
 };
@@ -239,7 +255,7 @@ const Chatbot = () => {
                     result = await fetchPublicProgramDetails(call.args.pk);
                     break;
                 case 'getProgramRecommendations':
-                    result = await fetchProgramRecommendations();
+                    result = await fetchProgramRecommendations(call.args);
                     break;
                 case 'getProgramStats':
                     result = await fetchProgramStats(call.args.pk);
@@ -265,7 +281,7 @@ const Chatbot = () => {
 
         } catch (error) {
             console.error(`Error in executeToolCall for ${call.name}:`, error);
-            throw error; // Re-throw to be handled by caller
+            throw error;
         }
     };
 
@@ -311,20 +327,16 @@ const Chatbot = () => {
             const functionCalls = response.functionCalls();
 
             if (functionCalls && functionCalls.length > 0) {
-                console.log('Processing function calls:', functionCalls);
 
-                // Execute all function calls and collect results
                 const functionResults = [];
 
                 for (const call of functionCalls) {
                     try {
-                        console.log(`Processing function call: ${call.name}`);
 
                         let toolResponseData;
 
                         toolResponseData = await executeToolCall(call);
 
-                        // Format the response properly for Gemini
                         const formattedResponse = {
                             success: true,
                             data: toolResponseData,
@@ -337,7 +349,6 @@ const Chatbot = () => {
                         });
 
                     } catch (toolError) {
-                        console.error(`Tool execution error for ${call.name}:`, toolError);
 
                         functionResults.push({
                             name: call.name,
@@ -350,11 +361,8 @@ const Chatbot = () => {
                     }
                 }
 
-                // Send function results back to Gemini using the correct format
                 try {
-                    console.log('Sending function results to Gemini:', functionResults);
 
-                    // Create the function response parts
                     const functionResponseParts = functionResults.map(result => ({
                         functionResponse: {
                             name: result.name,
@@ -362,7 +370,6 @@ const Chatbot = () => {
                         }
                     }));
 
-                    // Send the function results as a new message
                     const toolResponseResult = await chat.sendMessage(functionResponseParts);
                     const aiResponse = toolResponseResult.response;
 
@@ -372,9 +379,7 @@ const Chatbot = () => {
                     }]);
 
                 } catch (geminiError) {
-                    console.error('Error sending function results to Gemini:', geminiError);
 
-                    // Fallback: Create a summary response from the data
                     let fallbackMessage = 'I encountered an issue processing the information, but here\'s what I found:\n\n';
 
                     functionResults.forEach(result => {
