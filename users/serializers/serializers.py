@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate, get_user_model
-from users.models.models import EducationHistory, UserDocument
+from users.models.models import EducationHistory, UserDocument, UserSettings
+from institutions.models import Program
 import os
 from django.utils import timezone
+from institutions.serializers import MinimalProgramSerializer
 User = get_user_model()
 
 # 🔹 User Serializer (For fetching user data)
@@ -23,6 +25,30 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_documents(self, obj):
         return UserDocumentSerializer(obj.user_documents.all(), many=True).data
+
+class UserSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserSettings
+        exclude = ['user'] 
+
+
+
+class UserSettingsSerializer(serializers.ModelSerializer):
+    auto_accept_programs = MinimalProgramSerializer(many=True, read_only=True)
+    auto_accept_programs_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Program.objects.all(), source='auto_accept_programs', write_only=True
+    ) 
+
+    class Meta:
+        model = UserSettings
+        exclude = ['user']
+        extra_kwargs = {
+            'notification_preferences': {'required': False},
+            'auto_review_criteria': {'required': False},
+            'auto_reject_criteria': {'required': False},
+            'advanced_preferences': {'required': False},
+        }
+# Assuming you 
 # 🔹 Register Serializer (For user sign-up)
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)

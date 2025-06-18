@@ -10,6 +10,7 @@ from .views import (
     UserProfileUpdateView,
     EducationHistoryCreateView,
     UserDocumentUploadView,
+    UserViewSet
     
 )
 from rest_framework.routers import DefaultRouter
@@ -21,6 +22,7 @@ router = DefaultRouter()
 # router.register(r'user-education-history', EducationHistoryViewSet, basename='user-education-history')
 router.register(r'user-documents', UserDocumentViewSet, basename='user-documents')
 router.register(r'profile-completion', ProfileCompletionViewSet, basename='profile-completion')
+router.register(r'users', UserViewSet, basename='users')
 
  
 

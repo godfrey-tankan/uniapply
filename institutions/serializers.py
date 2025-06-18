@@ -124,6 +124,11 @@ class InstitutionSerializer(serializers.ModelSerializer):
         model = Institution
         fields = '__all__'
 
+class MinimalProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ['id', 'name','code']
+
 class InstitutionMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institution

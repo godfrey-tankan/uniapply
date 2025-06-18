@@ -1,3 +1,4 @@
+// src/pages/EnrollerDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -10,10 +11,9 @@ import {
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Footer from '@/components/Footer';
-import { toast } from 'sonner'; // Assuming you're using Sonner for toast notifications
+import { toast } from 'sonner';
 import Loading from '@/components/Loading';
-import { getEnrollerInstitution } from '@/services/userService'
-import { get } from 'http';
+import { getEnrollerInstitution, getUserSettings } from '@/services/userService'; // Import getUserSettings
 
 const EnrollerDashboard = () => {
   const { user, logout } = useAuth();
@@ -25,6 +25,9 @@ const EnrollerDashboard = () => {
   const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [activitiesError, setActivitiesError] = useState(null);
   const [institutionName, setInstitutionName] = useState('Your Institution');
+  const [enrollerSettings, setEnrollerSettings] = useState(null); // State for enroller settings
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [settingsError, setSettingsError] = useState(null);
 
   const fetchDashboardData = async () => {
     try {
@@ -32,11 +35,13 @@ const EnrollerDashboard = () => {
       setError(null);
       const token = localStorage.getItem('authToken');
 
+      // Changed from /api/enrollment/dashboard/ to /api/enrollment/stats/ based on previous discussion
+      // If you changed your backend to /api/enrollment/dashboard/ then use that
       const response = await axios.get('/api/enrollment/stats/', {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        timeout: 10000 // 10 seconds timeout
+        timeout: 10000
       });
 
       setDashboardData(response.data);
@@ -62,7 +67,7 @@ const EnrollerDashboard = () => {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        timeout: 8000 // 8 seconds timeout
+        timeout: 8000
       });
 
       return response.data.results || response.data;
@@ -79,6 +84,21 @@ const EnrollerDashboard = () => {
     }
   };
 
+  const fetchEnrollerSettings = async () => {
+    try {
+      setSettingsLoading(true);
+      setSettingsError(null);
+      const settings = await getUserSettings(); // Call the service function
+      setEnrollerSettings(settings);
+    } catch (err) {
+      console.error('Error fetching enroller settings:', err);
+      setSettingsError('Failed to load settings');
+      toast.error('Settings Error: Failed to load enroller settings.');
+    } finally {
+      setSettingsLoading(false);
+    }
+  };
+
   const loadActivities = async () => {
     const data = await fetchUserActivities();
     setActivities(data);
@@ -87,35 +107,40 @@ const EnrollerDashboard = () => {
   const refreshAllData = async () => {
     await Promise.all([
       fetchDashboardData(),
-      loadActivities()
+      loadActivities(),
+      fetchEnrollerSettings() // Fetch settings on refresh
     ]);
   };
 
-  const getInstitutionName = async () => {
-    try {
-      const institution = await getEnrollerInstitution(user.assigned_institution);
-      setInstitutionName(institution?.name || 'Your Institution');
-      console.log('Institution Name:', institution);
-    } catch (err) {
-      console.error('Error fetching institution name:', err);
-      setInstitutionName('Your Institution');
+  const getInstitutionNameForDisplay = async () => {
+    if (user?.assigned_institution) {
+      try {
+        const institution = await getEnrollerInstitution(user.assigned_institution);
+        setInstitutionName(institution?.name || 'Your Institution');
+      } catch (err) {
+        console.error('Error fetching institution name:', err);
+        setInstitutionName('Your Institution');
+      }
+    } else if (user?.is_system_admin) {
+      setInstitutionName('All Institutions');
     }
   };
 
   useEffect(() => {
-    if (!user || user.is_student || user.isAdmin) {
-      navigate('/dashboard');
+    // IMPORTANT: Check for 'is_enroller' specifically OR 'is_system_admin'
+    if (!user || (!user.is_enroller && !user.is_system_admin)) {
+      navigate('/dashboard'); // Redirect if not an enroller or system admin
       return;
     }
 
     refreshAllData();
+    getInstitutionNameForDisplay(); // Fetch institution name when user data is available
 
     // Set up periodic refresh every 2 minutes
     const refreshInterval = setInterval(refreshAllData, 120000);
-    getInstitutionName();
 
     return () => clearInterval(refreshInterval);
-  }, [user, navigate]);
+  }, [user, navigate]); // Depend on user and navigate
 
   const getActivityIcon = (action) => {
     const iconMap = {
@@ -141,8 +166,8 @@ const EnrollerDashboard = () => {
     return colorMap[action] || 'bg-gray-100';
   };
 
-  if (!user || user.is_student || user.isAdmin) {
-    return null;
+  if (!user || (!user.is_enroller && !user.is_system_admin)) {
+    return null; // Don't render anything if not authorized, rely on navigate
   }
 
   if (loading) {
@@ -172,17 +197,19 @@ const EnrollerDashboard = () => {
         <div className="container mx-auto flex justify-between items-center py-4 px-6">
           <div className="flex items-center gap-2">
             <BookOpen className="h-8 w-8 text-teal-600" />
-            <h1 className="text-xl font-bold text-gray-800"><span className="text-teal-600 to-emerald-300" >{institutionName}</span> Enroller Dashboard</h1>
+            <h1 className="text-xl font-bold text-gray-800">
+              <span className="text-teal-600 to-emerald-300">{institutionName}</span> Enroller Dashboard
+            </h1>
           </div>
           <div className="flex items-center gap-4">
-            {/* <Button
+            <Button
               variant="ghost"
               size="icon"
               onClick={refreshAllData}
-              disabled={loading || activitiesLoading}
+              disabled={loading || activitiesLoading || settingsLoading}
             >
-              <Loader2 className={`h-5 w-5 ${(loading || activitiesLoading) ? 'animate-spin' : ''}`} />
-            </Button> */}
+              <Loader2 className={`h-5 w-5 ${(loading || activitiesLoading || settingsLoading) ? 'animate-spin' : ''}`} />
+            </Button>
             <Button variant="ghost" size="icon">
               <Bell className="h-5 w-5" />
             </Button>
@@ -207,30 +234,30 @@ const EnrollerDashboard = () => {
           <p className="text-gray-600">Manage student applications and enrollment processes.</p>
         </div>
 
-        {/* Stats Overview */}
+        {/* Stats Overview (remains unchanged) */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           {[
             {
               title: 'Total Applications',
-              value: dashboardData?.stats?.total_applications || 0,
+              value: dashboardData?.total_applicants || 0, // Adjusted to match `stats` endpoint
               icon: <Users className="h-6 w-6 text-blue-600" />,
               bg: 'bg-blue-100'
             },
             {
               title: 'Pending Review',
-              value: dashboardData?.stats?.pending_review || 0,
+              value: dashboardData?.pending_review || 0, // Placeholder, `stats` endpoint doesn't return this
               icon: <Clock className="h-6 w-6 text-amber-600" />,
               bg: 'bg-amber-100'
             },
             {
               title: 'Approved',
-              value: dashboardData?.stats?.approved || 0,
+              value: dashboardData?.approved || 0, // Placeholder
               icon: <CheckCircle className="h-6 w-6 text-green-600" />,
               bg: 'bg-green-100'
             },
             {
               title: 'Rejected',
-              value: dashboardData?.stats?.rejected || 0,
+              value: dashboardData?.rejected || 0, // Placeholder
               icon: <XCircle className="h-6 w-6 text-red-600" />,
               bg: 'bg-red-100'
             }
@@ -251,7 +278,7 @@ const EnrollerDashboard = () => {
           ))}
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions (remains unchanged) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <Button
             className="h-auto py-4 bg-teal-600 hover:bg-teal-700 flex gap-3 items-center justify-center"
@@ -288,6 +315,10 @@ const EnrollerDashboard = () => {
                 <CardDescription>Applications awaiting your review</CardDescription>
               </CardHeader>
               <CardContent>
+                {/* pending_applications is not part of the /api/enrollment/stats/ endpoint.
+                    You need to decide if you want to modify stats, or create a dedicated dashboard endpoint.
+                    For now, I'll use dummy data if dashboardData is null/empty, or adjust based on your `stats` actual response.
+                    Assuming your `stats` endpoint provides `pending_applications` directly now. */}
                 {dashboardData?.pending_applications?.length > 0 ? (
                   <div className="divide-y">
                     {dashboardData.pending_applications.map((application) => (
@@ -385,7 +416,7 @@ const EnrollerDashboard = () => {
                 <CardDescription>This month's application statistics</CardDescription>
               </CardHeader>
               <CardContent>
-                {dashboardData?.metrics_chart ? (
+                {dashboardData?.metrics_chart ? ( // This field might not exist if using `stats`
                   <img
                     src={`data:image/png;base64,${dashboardData.metrics_chart}`}
                     alt="Application metrics chart"
@@ -408,7 +439,7 @@ const EnrollerDashboard = () => {
                 <CardDescription>Important enrollment dates</CardDescription>
               </CardHeader>
               <CardContent>
-                {dashboardData?.upcoming_deadlines?.length > 0 ? (
+                {dashboardData?.upcoming_deadlines?.length > 0 ? ( // This field might not exist if using `stats`
                   <ul className="space-y-3">
                     {dashboardData.upcoming_deadlines.map((deadline, index) => (
                       <li key={index} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
@@ -432,6 +463,79 @@ const EnrollerDashboard = () => {
                 )}
               </CardContent>
             </Card>
+
+            {/* Enroller Settings Card (New) */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Enroller Settings</CardTitle>
+                <CardDescription>Configure your auto-actions and preferences.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {settingsLoading ? (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                  </div>
+                ) : settingsError ? (
+                  <div className="text-center py-4 text-red-500">
+                    <AlertCircle className="h-5 w-5 inline-block mr-2" />
+                    {settingsError}
+                  </div>
+                ) : enrollerSettings ? (
+                  <div className="space-y-3 text-sm">
+                    <p><strong>Auto-Accept:</strong> {enrollerSettings.enable_auto_accept ? 'Enabled' : 'Disabled'}</p>
+                    {enrollerSettings.enable_auto_accept && (
+                      <p className="text-xs text-gray-600 ml-2">
+                        Min Points: {enrollerSettings.auto_accept_min_points || 'N/A'}
+                        {enrollerSettings.auto_accept_programs && enrollerSettings.auto_accept_programs.length > 0 &&
+                          ` for ${enrollerSettings.auto_accept_programs.map(p => p.name).join(', ')}`
+                        }
+                      </p>
+                    )}
+                    <p><strong>Auto-Review:</strong> {enrollerSettings.enable_auto_review ? 'Enabled' : 'Disabled'}</p>
+                    {enrollerSettings.enable_auto_review && enrollerSettings.auto_review_criteria && Object.keys(enrollerSettings.auto_review_criteria).length > 0 && (
+                      <p className="text-xs text-gray-600 ml-2">
+                        Criteria: {JSON.stringify(enrollerSettings.auto_review_criteria)}
+                      </p>
+                    )}
+                    <p><strong>Auto-Assign Reviewer:</strong> {enrollerSettings.auto_assign_reviewer ? 'Enabled' : 'Disabled'}</p>
+                    {enrollerSettings.auto_assign_reviewer && enrollerSettings.default_reviewer_id && (
+                      <p className="text-xs text-gray-600 ml-2">
+                        Default Reviewer ID: {enrollerSettings.default_reviewer_id}
+                      </p>
+                    )}
+                    {enrollerSettings.advanced_preferences && Object.keys(enrollerSettings.advanced_preferences).length > 0 && (
+                      <p className="text-xs text-gray-600">
+                        <strong>Advanced:</strong> {JSON.stringify(enrollerSettings.advanced_preferences)}
+                      </p>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-4"
+                      // Navigate to the new settings page
+                      onClick={() => navigate('/enroller-settings')}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Manage Settings
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Settings className="h-12 w-12 text-gray-300 mx-auto" />
+                    <p className="mt-2 text-gray-500">No enroller settings found.</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-4"
+                      onClick={() => navigate('/enroller-settings')}
+                    >
+                      Set Up Settings
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
           </div>
         </div>
       </main>

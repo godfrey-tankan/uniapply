@@ -4,6 +4,7 @@
 // src/services/userService.js (or .ts)
 import axios from 'axios';
 const backendApi = import.meta.env.VITE_BACKEND_URL
+
 export const getUserProfile = async () => {
     try {
         const token = localStorage.getItem('authToken');
@@ -29,46 +30,66 @@ export const getUserProfile = async () => {
     }
 };
 
+/* Duplicate getEnrollerInstitution removed to avoid redeclaration error. */
+
+
+
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 export const getEnrollerInstitution = async (institutionId) => {
-    try {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            console.error('No auth token found for getEnrollerInstitution.');
-            return { error: 'No authentication token.' };
-        }
-
-        console.log('Attempting to fetch enroller institution with token...');
-        const response = await fetch(`${backendApi}/api/institution/${institutionId}/`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        const data = await response.json();
-        console.log('Enroller Institution API Response:', data);
-        return data; // Ensure this returns the actual data object
-    } catch (error) {
-        console.error('Error fetching enroller institution in userService:', error.response ? error.response.data : error.message);
-        return { error: 'Failed to fetch enroller institution data from API.' };
-    }
+  if (!institutionId) {
+    return null;
+  }
+  try {
+    const response = await axios.get(`${backendApi}/api/institution/${institutionId}/`, {
+      headers: getAuthHeaders(),
+      timeout: 5000
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching institution ${institutionId}:`, error);
+    throw error;
+  }
 };
 
+export const getUserSettings = async () => {
+  try {
+    const response = await axios.get(`${backendApi}/auth/users/user-settings/`, {
+      headers: getAuthHeaders(),
+      timeout: 5000
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user settings:', error);
+    throw error;
+  }
+};
 
-// // Replace with your actual base URL from your environment variables or config
-// const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+export const updateUserSettings = async (settingsData) => {
+  try {
+    const response = await axios.put(`${backendApi}/auth/users/user-settings/`, settingsData, {
+      headers: getAuthHeaders(),
+      timeout: 5000
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating user settings:', error);
+    throw error;
+  }
+};
 
-// export const getUserProfile = async () => {
-//   try {
-//     const token = localStorage.getItem('authToken'); // Or wherever your token is stored
-
-//     const response = await axios.get(`${API_BASE_URL}/auth/profile/`, {
-//       headers: {
-//         'Authorization': `Bearer ${token}` 
-//       }
-//     });
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error fetching user profile:', error.response?.data || error.message);
-//     throw error; 
-//   }
-// };
+export const getProgramsForSettings = async () => {
+  try {
+    const response = await axios.get(`${backendApi}/auth/users/programs-list/`, { 
+      headers: getAuthHeaders(),
+      timeout: 5000
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching programs for settings:', error);
+    throw error;
+  }
+};

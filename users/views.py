@@ -4,10 +4,12 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.decorators import action
-from users.models.models import EducationHistory, UserDocument
+from users.models.models import EducationHistory, UserDocument, UserSettings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import ValidationError
+from institutions.models import Program
+from institutions.serializers import MinimalProgramSerializer
 
 
 from users.serializers.serializers import (
@@ -16,7 +18,8 @@ from users.serializers.serializers import (
     UserSerializer,
     EducationHistorySerializer, 
     UserDocumentSerializer,
-    UserProfileCompletionSerializer
+    UserProfileCompletionSerializer,
+    UserSettingsSerializer
 )
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -193,3 +196,46 @@ class UserDocumentUploadView(generics.CreateAPIView):
             document_type=self.request.data.get('document_type', 'OTHER').upper(),
             title=self.request.FILES['file'].name
         )
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get', 'put'], permission_classes=[IsAuthenticated],url_path='user-settings')
+    def user_settings(self, request):
+        settings, created = UserSettings.objects.get_or_create(user=request.user)
+
+        if request.method == 'GET':
+            serializer = UserSettingsSerializer(settings)
+            return Response(serializer.data)
+
+        elif request.method == 'PUT':
+            serializer = UserSettingsSerializer(settings, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'], url_path='programs-list', permission_classes=[IsAuthenticated])
+    def programs_list(self, request):
+        user = request.user
+        programs_queryset = Program.objects.all()
+
+        if user.is_enroller and user.assigned_institution:
+            programs_queryset = programs_queryset.filter(
+                department__faculty__institution=user.assigned_institution
+            )
+        elif not user.is_system_admin:
+            return Response(
+                {"detail": "You do not have permission to access programs data."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = MinimalProgramSerializer(programs_queryset, many=True)
+        return Response(serializer.data)
