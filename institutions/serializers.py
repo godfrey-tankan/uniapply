@@ -124,6 +124,11 @@ class InstitutionSerializer(serializers.ModelSerializer):
         model = Institution
         fields = '__all__'
 
+class InstitutionMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Institution
+        fields = ['id', 'name',  'location']
+        read_only_fields = ['id', 'name', 'location']
 # serializers.py
 class ProgramSerializerDetails(serializers.ModelSerializer):
     requirements = serializers.SerializerMethodField()

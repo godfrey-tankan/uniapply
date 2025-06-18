@@ -6,6 +6,11 @@ class Institution(models.Model):
     location = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)  # Optional description of the institution
     logo = models.ImageField(upload_to='logos/', blank=True, null=True)  # Institution logo
+    date_established = models.DateField()  # Date when the institution was established
+    motto = models.CharField(max_length=255, blank=True, null=True)  # Institution motto
+    vision = models.TextField(blank=True, null=True)  # Institution vision statement
+    mission = models.TextField(blank=True, null=True)  # Institution mission statement
+    website = models.URLField(max_length=255, blank=True, null=True)  # Institution website URL
 
     def __str__(self):
         return self.name

@@ -3,7 +3,7 @@
 
 // src/services/userService.js (or .ts)
 import axios from 'axios';
-
+const backendApi = import.meta.env.VITE_BACKEND_URL
 export const getUserProfile = async () => {
     try {
         const token = localStorage.getItem('authToken');
@@ -29,6 +29,29 @@ export const getUserProfile = async () => {
     }
 };
 
+export const getEnrollerInstitution = async (institutionId) => {
+    try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            console.error('No auth token found for getEnrollerInstitution.');
+            return { error: 'No authentication token.' };
+        }
+
+        console.log('Attempting to fetch enroller institution with token...');
+        const response = await fetch(`${backendApi}/api/institution/${institutionId}/`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+        console.log('Enroller Institution API Response:', data);
+        return data; // Ensure this returns the actual data object
+    } catch (error) {
+        console.error('Error fetching enroller institution in userService:', error.response ? error.response.data : error.message);
+        return { error: 'Failed to fetch enroller institution data from API.' };
+    }
+};
 
 
 // // Replace with your actual base URL from your environment variables or config
@@ -36,7 +59,7 @@ export const getUserProfile = async () => {
 
 // export const getUserProfile = async () => {
 //   try {
-//     const token = localStorage.getItem('access_token'); // Or wherever your token is stored
+//     const token = localStorage.getItem('authToken'); // Or wherever your token is stored
 
 //     const response = await axios.get(`${API_BASE_URL}/auth/profile/`, {
 //       headers: {

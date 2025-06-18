@@ -12,6 +12,8 @@ import axios from 'axios';
 import Footer from '@/components/Footer';
 import { toast } from 'sonner'; // Assuming you're using Sonner for toast notifications
 import Loading from '@/components/Loading';
+import { getEnrollerInstitution } from '@/services/userService'
+import { get } from 'http';
 
 const EnrollerDashboard = () => {
   const { user, logout } = useAuth();
@@ -22,6 +24,7 @@ const EnrollerDashboard = () => {
   const [activities, setActivities] = useState([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [activitiesError, setActivitiesError] = useState(null);
+  const [institutionName, setInstitutionName] = useState('Your Institution');
 
   const fetchDashboardData = async () => {
     try {
@@ -88,6 +91,17 @@ const EnrollerDashboard = () => {
     ]);
   };
 
+  const getInstitutionName = async () => {
+    try {
+      const institution = await getEnrollerInstitution(user.assigned_institution);
+      setInstitutionName(institution?.name || 'Your Institution');
+      console.log('Institution Name:', institution);
+    } catch (err) {
+      console.error('Error fetching institution name:', err);
+      setInstitutionName('Your Institution');
+    }
+  };
+
   useEffect(() => {
     if (!user || user.is_student || user.isAdmin) {
       navigate('/dashboard');
@@ -98,6 +112,7 @@ const EnrollerDashboard = () => {
 
     // Set up periodic refresh every 2 minutes
     const refreshInterval = setInterval(refreshAllData, 120000);
+    getInstitutionName();
 
     return () => clearInterval(refreshInterval);
   }, [user, navigate]);
@@ -157,7 +172,7 @@ const EnrollerDashboard = () => {
         <div className="container mx-auto flex justify-between items-center py-4 px-6">
           <div className="flex items-center gap-2">
             <BookOpen className="h-8 w-8 text-teal-600" />
-            <h1 className="text-xl font-bold text-gray-800">Enroller Dashboard</h1>
+            <h1 className="text-xl font-bold text-gray-800"><span className="text-teal-600 to-emerald-300" >{institutionName}</span> Enroller Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">
             {/* <Button

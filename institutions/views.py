@@ -8,7 +8,8 @@ from .serializers import (
     ProgramSerializer,
     ProgramRequirementsSerializer,
     ProgramSectionSerializer,
-    PublicProgramSerializer
+    PublicProgramSerializer,
+    InstitutionMinimalSerializer
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -27,10 +28,20 @@ import random
 User = get_user_model()
 
 
-class InstitutionViewSet(viewsets.ModelViewSet):
+class InstitutionsViewSet(viewsets.ModelViewSet):
     queryset = Institution.objects.all()
     serializer_class = InstitutionSerializer
 
+class InstitutionViewSet(viewsets.ModelViewSet):
+    queryset = Institution.objects.all()
+    serializer_class = InstitutionMinimalSerializer
+    permission_classes = [AllowAny]  # This should make it public
+    authentication_classes = []
+    
+    def get_permissions(self):
+        if self.action in ['retrieve', 'list']:
+            return [AllowAny()]
+        return super().get_permissions()
 
 class FacultyViewSet(viewsets.ModelViewSet):
     queryset = Faculty.objects.all()

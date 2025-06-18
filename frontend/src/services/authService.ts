@@ -20,7 +20,7 @@ export interface UserProfile {
   is_student: boolean;
 }
 
-const API_URL = "http://127.0.0.1:8000/auth"; // Ensure correct API prefix
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/auth`; // Ensure correct API prefix
 
 // 🔹 Function to refresh the access token
 const refreshAccessToken = async (): Promise<string | null> => {
