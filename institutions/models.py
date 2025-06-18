@@ -1,4 +1,4 @@
-# models.py
+# institution models.py
 from django.db import models
 
 class Institution(models.Model):

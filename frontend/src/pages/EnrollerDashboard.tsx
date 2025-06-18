@@ -29,7 +29,7 @@ const EnrollerDashboard = () => {
       setError(null);
       const token = localStorage.getItem('authToken');
 
-      const response = await axios.get('/api/enrollment/dashboard/', {
+      const response = await axios.get('/api/enrollment/stats/', {
         headers: {
           'Authorization': `Bearer ${token}`
         },

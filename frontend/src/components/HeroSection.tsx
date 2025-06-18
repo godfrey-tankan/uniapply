@@ -30,7 +30,9 @@ const HeroSection = () => {
               </Link>
               <ArrowRight size={18} className="ml-2" />
             </button>
-            <button className="px-8 py-3 bg-white border border-slate text-navy rounded-md hover:bg-slate/5 transition-colors dark:bg-transparent dark:text-white">
+            <button className="px-8 py-3 bg-white border border-slate text-navy rounded-md hover:bg-slate/5 transition-colors dark:bg-transparent dark:text-white"
+              onClick={() => window.scrollTo({ top: document.getElementById('programs')?.offsetTop || 0, behavior: 'smooth' })}
+            >
               Explore Programs
             </button>
           </div>

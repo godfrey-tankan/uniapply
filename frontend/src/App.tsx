@@ -46,12 +46,24 @@ const App = () => (
 
             <Route element={<ProtectedRoute allowedRoles={["is_student"]} />}>
               <Route path="/student-dashboard" element={<StudentDashboard />} />
-              <Route path="/apply" element={<ApplicationPage />} />
+              <Route
+                path="/apply"
+                element={
+                  <ApplicationPage
+                    onSuccess={() => {
+                      // handle success, e.g., redirect or show a message
+                    }}
+                    onCancel={() => {
+
+                    }}
+                  />
+                }
+              />
               <Route path="/applications/:id" element={<ApplicationDetails />} />
               <Route path="/profile/complete" element={<ProfileCompletionPage />} />
             </Route>
 
-            <Route element={<ProtectedRoute allowedRoles={["is_university_admin"]} />}>
+            <Route element={<ProtectedRoute allowedRoles={["is_enroller"]} />}>
               <Route path="/review-application/:id" element={<ApplicationReviewPage />} />
               <Route path="/enroller-dashboard" element={<EnrollerDashboard />} />
             </Route>

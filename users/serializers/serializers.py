@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'name', 'is_student', 'is_university_admin', 'is_system_admin',
             'a_level_points', 'o_level_subjects', 'gender', 'phone_number', 'province',
-            'country', 'education_history', 'documents'
+            'country', 'education_history', 'documents','is_enroller', 'assigned_institution',
         ]
 
     def get_education_history(self, obj):
@@ -57,7 +57,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['email'],  # Since email is the `USERNAME_FIELD`
             password=validated_data['password'],
             is_student=validated_data.get('is_student', False),
-            is_university_admin=validated_data.get('is_university_admin', False),
+            is_university_admin=validated_data.get('is_enroller', False),
         )
         return user
 
@@ -82,10 +82,19 @@ class LoginSerializer(serializers.Serializer):
 
 
 class EducationHistorySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = EducationHistory
         fields = '__all__'
         read_only_fields = ('user', 'created_at', 'updated_at')
+
+    def create(self, validated_data):
+        return EducationHistory.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data.pop('user', None)
+        return super().update(instance, validated_data)
+
 class UserDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDocument

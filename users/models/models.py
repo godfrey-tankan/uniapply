@@ -1,7 +1,9 @@
+# users/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 import uuid
+from institutions.models import Institution 
 
 class User(AbstractUser):
     """
@@ -11,7 +13,7 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255)
-    
+
     # Account status
     is_verified = models.BooleanField(default=False)
     verified_at = models.DateTimeField(null=True, blank=True)
@@ -35,7 +37,15 @@ class User(AbstractUser):
     country = models.CharField(blank=True, null=True,max_length=50)
     is_student = models.BooleanField(default=False)
     is_university_admin = models.BooleanField(default=False)
-    
+    is_enroller = models.BooleanField(default=False)
+    assigned_institution = models.ForeignKey(
+        Institution,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='enrollers'
+    ) 
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'name']
 
@@ -46,6 +56,8 @@ class User(AbstractUser):
             ("can_assign_system_roles", "Can assign system-wide roles"),
             ("can_manage_universities", "Can manage university accounts"),
             ("can_verify_users", "Can verify user accounts"),
+            ("can_view_all_applications", "Can view all applications across institutions"),
+            ("can_manage_enrollment", "Can manage enrollment processes for assigned institution"),
         ]
 
     def __str__(self):
@@ -54,6 +66,10 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         if self.is_system_admin and not self.is_staff:
             self.is_staff = True
+        # If a user is an enroller, they should not be a student or university admin
+        if self.is_enroller:
+            self.is_student = False
+            self.is_university_admin = False
         super().save(*args, **kwargs)
 
     def update_last_active(self):
@@ -83,13 +99,14 @@ class User(AbstractUser):
         """Check if user has a system-wide permission"""
         if self.is_superuser:
             return True
-            
+
         if self.system_role and self.system_role.has_permission(permission):
             return True
-            
+
         if isinstance(permission, str):
             return self.user_permissions.filter(codename=permission).exists()
         return self.user_permissions.filter(id=permission.id).exists()
+
 class Role(models.Model):
     name = models.CharField(max_length=255, unique=True)
     is_system_role = models.BooleanField(default=False)
@@ -107,8 +124,6 @@ class Role(models.Model):
         if isinstance(permission, str):
             return self.permissions.filter(codename=permission).exists()
         return self.permissions.filter(id=permission.id).exists()
-    
-
 class EducationHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='education_history')
     institution = models.CharField(max_length=255)
@@ -151,3 +166,39 @@ class UserDocument(models.Model):
 
     class Meta:
         ordering = ['-uploaded_at']
+
+class UserSettings(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='settings')
+    receive_newsletters = models.BooleanField(default=True)
+    dark_mode = models.BooleanField(default=False)
+    language = models.CharField(max_length=10, default='en')
+    notification_preferences = models.JSONField(default=dict)
+
+    enable_auto_accept = models.BooleanField(default=False)
+    auto_accept_min_points = models.IntegerField(default=0)
+    auto_accept_programs = models.ManyToManyField(
+        'institutions.Program',
+        blank=True,
+        related_name='auto_accept_settings'
+    )
+    enable_auto_review = models.BooleanField(default=False)
+    auto_review_criteria = models.JSONField(
+        default=dict,
+        help_text="Criteria for auto-review (e.g., {'o_level_subjects__gte': 5})"
+    )
+    auto_reject_criteria = models.JSONField(
+        default=dict,
+        help_text="Criteria for auto-reject (e.g., {'a_level_points__lt': 5})"
+    )
+    auto_assign_reviewer = models.BooleanField(default=False)
+    default_reviewer_id = models.UUIDField(null=True, blank=True)
+    advanced_preferences = models.JSONField(
+        default=dict,
+        help_text="Arbitrary advanced preferences for enrollers"
+    )
+
+
+    def __str__(self):
+        return f"Settings for {self.user.name}"
+    class Meta:
+        verbose_name_plural = 'User Settings'

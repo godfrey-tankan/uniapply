@@ -282,68 +282,205 @@ def check_application(request):
 
 
 class EnrollmentViewSet(viewsets.ViewSet):
-    # Default permissions for all actions
     permission_classes = [IsAuthenticated]
 
     @action(
-        detail=False, 
+        detail=False,
         methods=['get'],
-        permission_classes=[AllowAny],  # This properly overrides the class-level permissions
-        authentication_classes=[]  # This disables authentication for this endpoint
+        permission_classes=[IsAuthenticated] # Ensure only authenticated users can access
+    )
+    def dashboard(self, request):
+        user = request.user
+        
+        # Security check: Only enrollers or system admins can access this dashboard
+        if not (hasattr(user, 'is_enroller') and user.is_enroller) and not user.is_system_admin:
+            return Response(
+                {"detail": "You do not have permission to access this resource."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Determine the institution for filtering
+        institution_filter = {}
+        if user.is_enroller and user.assigned_institution:
+            institution_filter['program__department__faculty__institution'] = user.assigned_institution
+            # For displaying institution name on the dashboard
+            institution_name = user.assigned_institution.name
+        elif user.is_system_admin:
+            # System admins can view all data, no institution filter
+            institution_name = "All Institutions"
+        else:
+            return Response(
+                {"detail": "No assigned institution for enroller, or user is not an enroller/admin."},
+                status=status.HTTP_403_FORBIDDEN # Or 400 Bad Request depending on interpretation
+            )
+
+        try:
+            # --- Stats Overview ---
+            total_applications = Application.objects.filter(**institution_filter).count()
+            pending_review = Application.objects.filter(status='Pending', **institution_filter).count()
+            approved = Application.objects.filter(status='Approved', **institution_filter).count()
+            rejected = Application.objects.filter(status='Rejected', **institution_filter).count()
+
+            # --- Pending Applications for Enroller's review ---
+            pending_applications_qs = Application.objects.filter(status='Pending', **institution_filter).select_related('student__user', 'program').order_by('-date_applied')[:5]
+            pending_applications_data = []
+            for app in pending_applications_qs:
+                pending_applications_data.append({
+                    'id': app.id,
+                    'student_name': app.student.user.name if app.student and app.student.user else 'N/A',
+                    'program_name': app.program.name if app.program else 'N/A',
+                    'date_applied': app.date_applied.isoformat()
+                })
+
+            # --- Upcoming Deadlines (filtered by institution's programs if applicable) ---
+            today = datetime.now().date()
+            
+            # Fetch programs related to the enroller's institution
+            if user.is_enroller and user.assigned_institution:
+                # Get all programs under the assigned institution
+                institution_programs_ids = Program.objects.filter(
+                    department__faculty__institution=user.assigned_institution
+                ).values_list('id', flat=True)
+                
+                # Filter deadlines associated with these programs. This assumes Deadlines are linked to Programs.
+                # If Deadlines are global, this logic needs adjustment.
+                # Assuming Deadline has a ManyToMany or ForeignKey to Program. If not, you'll need to adapt.
+                # For now, let's assume Deadlines might be generally applicable or linked to Institution directly.
+                # If Deadline is not linked to Program/Institution:
+                upcoming_deadlines_qs = [] # Default to empty if no specific institution link
+                # If Deadline can be linked to an institution: (add institution FK to Deadline model)
+                # upcoming_deadlines_qs = Deadline.objects.filter(
+                #     date__gte=today,
+                #     is_active=True,
+                #     institution=user.assigned_institution # Requires 'institution' FK on Deadline model
+                # ).order_by('date')[:5]
+                # If no direct link, it might be a general deadline for all applications
+                upcoming_deadlines_qs = [] # You need to define how deadlines relate to institutions.
+                # For this example, let's assume general deadlines or implement a placeholder:
+                upcoming_deadlines_qs = [] # Placeholder: You need to define how deadlines relate to programs/institutions.
+                                           # If Deadlines are global, remove this filter.
+                                           # If Deadlines are per Program, you'd filter:
+                                           # Deadline.objects.filter(date__gte=today, is_active=True, program__in=institution_programs_ids).order_by('date')[:5]
+            else: # System admin or no assigned institution (show all global deadlines if they exist)
+                upcoming_deadlines_qs = [] # Placeholder: You need to define how deadlines relate to programs/institutions.
+            
+            # Let's use a simpler approach for deadlines for now, assuming they are either global
+            # or you will link them to Institution in your `Deadline` model.
+            # For demonstration, I'll fetch general deadlines. If you have `institution` FK on Deadline, filter by that.
+            upcoming_deadlines = [] # Initialize
+            # Example if Deadline had an 'institution' FK:
+            # deadlines_filter = {}
+            # if user.is_enroller and user.assigned_institution:
+            #     deadlines_filter['institution'] = user.assigned_institution
+            # upcoming_deadlines_qs = Deadline.objects.filter(
+            #     date__gte=today,
+            #     is_active=True,
+            #     **deadlines_filter
+            # ).order_by('date')[:5]
+            # for deadline in upcoming_deadlines_qs:
+            #     upcoming_deadlines.append({
+            #         'title': f"Application Deadline for {deadline.semester}",
+            #         'date': deadline.date.isoformat(),
+            #         'semester': deadline.semester
+            #     })
+
+            # Placeholder for upcoming_deadlines if you don't have a concrete implementation yet
+            upcoming_deadlines_data = [
+                {'title': 'General Application Period Closes', 'date': (today + timedelta(days=30)).isoformat(), 'semester': 'Fall'},
+                {'title': 'Early Bird Deadline', 'date': (today + timedelta(days=60)).isoformat(), 'semester': 'Spring'}
+            ]
+
+
+            # --- Metrics Chart ---
+            # This is where you would generate your chart. For now, it's a placeholder.
+            metrics_chart_base64 = "" # This would come from your chart generation logic (e.g., matplotlib)
+            metrics_summary = "Application metrics for the assigned institution."
+            if user.is_system_admin:
+                metrics_summary = "Application metrics across all institutions."
+
+
+            return Response({
+                'institution_name': institution_name, # Pass institution name to frontend
+                'stats': {
+                    'total_applications': total_applications,
+                    'pending_review': pending_review,
+                    'approved': approved,
+                    'rejected': rejected,
+                },
+                'pending_applications': pending_applications_data,
+                'upcoming_deadlines': upcoming_deadlines_data, # Use the generated data
+                'metrics_chart': metrics_chart_base64, # Placeholder for your chart
+                'metrics_summary': metrics_summary,
+                'last_updated': datetime.now().isoformat()
+            })
+
+        except Exception as e:
+            print(f"Error in enroller dashboard: {e}")
+            return Response(
+                {'error': 'An unexpected error occurred while fetching dashboard data.', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[AllowAny], # You might want to restrict this more later
+        authentication_classes=[]
     )
     def stats(self, request):
-        # Get current date and calculate important time periods
+        # Your existing stats logic (could be adapted for institution-specific stats if needed)
+        # For now, keeping it as is, assuming it's more general or system-wide stats
+        # If this endpoint is also for enrollers, you'd apply institution_filter here too.
         today = datetime.now().date()
         current_year_start = datetime(today.year, 1, 1).date()
         last_year_start = datetime(today.year - 1, 1, 1).date()
-        
-        
+
         try:
             # 1. Most popular programs (top 6)
             popular_programs = Program.objects.annotate(
                 applicant_count=Count('applications')
             ).order_by('-applicant_count')[:6].values('name', 'applicant_count')
-            
+
             # Assign colors to programs for consistent chart display
             colors = ['#0d9488', '#1a365d', '#0f766e', '#0d9488', '#1a365d', '#0f766e']
             for i, program in enumerate(popular_programs):
                 program['fill'] = colors[i % len(colors)]
-            
+
             # 2. Total applicants count
             total_applicants = Application.objects.count()
-            
+
             # 3. Applicant growth compared to last year
             current_year_applicants = Application.objects.filter(
                 date_applied__gte=current_year_start
             ).count()
-            
+
             last_year_applicants = Application.objects.filter(
                 date_applied__gte=last_year_start,
                 date_applied__lt=current_year_start
             ).count()
-            
+
             applicant_growth = 0
             if last_year_applicants > 0:
                 applicant_growth = round(
                     ((current_year_applicants - last_year_applicants) / last_year_applicants) * 100,
                     1
                 )
-            
+
             # 4. Total programs and universities
             total_programs = Program.objects.count()
             total_universities = Institution.objects.count()
-            
+
             avg_processing_time = Application.objects.filter(
                 status__in=['Approved', 'Rejected']
             ).aggregate(
                 avg_days=Avg(
                     F('date_status_changed') - F('date_applied')
                 )
-            )['avg_days'] or 0
-            
+            )['avg_days'] or timedelta(days=0)
+
             if isinstance(avg_processing_time, timedelta):
                 avg_processing_time = avg_processing_time.days
-            
+
             last_year_processing = Application.objects.filter(
                 status__in=['Approved', 'Rejected'],
                 date_status_changed__gte=last_year_start,
@@ -353,25 +490,29 @@ class EnrollmentViewSet(viewsets.ViewSet):
                     F('date_status_changed') - F('date_applied')
                 )
             )['avg_days'] or timedelta(days=0)
-            
+
             if isinstance(last_year_processing, timedelta):
                 last_year_processing = last_year_processing.days
-            
+
             processing_improvement = 0
             if last_year_processing > 0:
                 processing_improvement = round(last_year_processing - avg_processing_time)
-            
+
             # 7. Application deadline
-            next_deadline = Deadline.objects.filter(
-                date__gte=today,
-                is_active=True
-            ).order_by('date').first()
+            # If Deadline model is linked to Institution, you might want to filter here too.
+            # Assuming Deadlines are global or a different endpoint serves institution-specific ones
+            next_deadline = None # Placeholder. Implement actual deadline logic here.
+            
+            # Example if Deadline had an 'institution' FK:
+            # next_deadline = Deadline.objects.filter(
+            #     date__gte=today,
+            #     is_active=True
+            # ).order_by('date').first()
             
             deadline_data = {
                 'deadline': next_deadline.date if next_deadline else None,
                 'semester': next_deadline.semester if next_deadline else 'Fall Semester'
             }
-            # cache.set(cache_key, data, timeout=3600) 
             return Response({
                 'popular_programs': popular_programs,
                 'total_applicants': total_applicants,
@@ -384,7 +525,7 @@ class EnrollmentViewSet(viewsets.ViewSet):
                 'semester': deadline_data['semester'],
                 'last_updated': datetime.now().isoformat()
             })
-            
+
         except Exception as e:
             return Response(
                 {'error': str(e)},

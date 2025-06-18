@@ -24,6 +24,7 @@ const ProtectedRoute = ({ allowedRoles }: { allowedRoles: string[] }) => {
         is_student: 'student',
         is_system_admin: 'admin',
         is_university_admin: 'university_admin',
+        is_enroller: 'enroller', // Assuming you have an enroller role
     };
     console.log('roleMap:', allowedRoles.map(role => roleMap[role]));
     // Check if user has one of the allowed roles
@@ -32,6 +33,7 @@ const ProtectedRoute = ({ allowedRoles }: { allowedRoles: string[] }) => {
             student: user?.is_student,
             admin: user?.is_system_admin,
             university_admin: user?.is_university_admin,
+            enroller: user?.is_enroller,
         };
 
 

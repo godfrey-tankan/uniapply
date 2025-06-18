@@ -3,15 +3,15 @@ from .models.models import User, Role, EducationHistory, UserDocument
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['id', 'email', 'name', 'is_student', 'is_university_admin','is_system_admin']
+    list_display = ['id', 'email', 'name', 'is_student', 'is_university_admin','is_system_admin','is_enroller']
     search_fields = ['email', 'name']
-    list_filter = ['is_student', 'is_university_admin','is_system_admin','is_active', 'is_verified', 'is_staff', 'is_superuser', 'groups']
+    list_filter = ['is_student', 'is_university_admin','is_system_admin','is_active','province','assigned_institution','is_enroller']
     readonly_fields = ['id']
     fieldsets = (
         (None, {'fields': ('id', 'email', 'name', 'password')}),
-        ('Permissions', {'fields': ('is_student', 'is_university_admin', 'is_staff', 'is_superuser', 'system_role','is_system_admin','a_level_points')}),
+        ('Permissions', {'fields': ('is_student', 'is_university_admin', 'is_staff', 'is_superuser', 'system_role','is_system_admin','a_level_points','province', 'is_active','country','gender', 'phone_number', 'is_enroller', 'assigned_institution')}),
     )
-    ordering = ['email']
+    ordering = ['is_student','province']
     list_per_page = 20
     actions = ['deactivate_users', 'activate_users']
 
