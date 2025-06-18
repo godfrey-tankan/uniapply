@@ -6,6 +6,17 @@ import { Menu, X, GraduationCap } from 'lucide-react';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isHomePage, setIsHomePage] = useState(false);
+  const token = localStorage.getItem('authToken');
+  const urlPathname = window.location.pathname;
+
+  if (urlPathname === '/') {
+    setIsHomePage(true);
+  }
+  useEffect(() => {
+    setIsLoggedIn(!!token);
+  }, [token]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,19 +53,35 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
           <div className="flex gap-6">
-            <a href="#programs" className="text-navy-light hover:text-teal transition-colors dark:text-slate-light dark:hover:text-teal">Programs</a>
-            <a href="#about" className="text-navy-light hover:text-teal transition-colors dark:text-slate-light dark:hover:text-teal">About</a>
-            <a href="#stats" className="text-navy-light hover:text-teal transition-colors dark:text-slate-light dark:hover:text-teal">Statistics</a>
-            <a href="#updates" className="text-navy-light hover:text-teal transition-colors dark:text-slate-light dark:hover:text-teal">Updates</a>
+            {isHomePage && (
+              <>
+                <a href="#programs" className="text-navy-light hover:text-teal transition-colors dark:text-slate-light dark:hover:text-teal">Programs</a>
+                <a href="#about" className="text-navy-light hover:text-teal transition-colors dark:text-slate-light dark:hover:text-teal">About</a>
+                <a href="#stats" className="text-navy-light hover:text-teal transition-colors dark:text-slate-light dark:hover:text-teal">Statistics</a>
+                <a href="#updates" className="text-navy-light hover:text-teal transition-colors dark:text-slate-light dark:hover:text-teal">Updates</a>
+              </>
+            )}
           </div>
-          <div className="flex gap-3">
-            <Link to="/auth" className="px-4 py-2 rounded-md bg-white border border-teal text-teal hover:bg-teal/5 transition-colors dark:bg-transparent">
-              Log In
-            </Link>
-            <Link to="/dashboard" className="px-4 py-2 rounded-md bg-teal text-white hover:bg-teal-dark transition-colors">
-              Apply Now
-            </Link>
-          </div>
+          {!isLoggedIn && (
+            <div className="flex gap-3">
+              <Link to="/auth" className="px-4 py-2 rounded-md bg-white border border-teal text-teal hover:bg-teal/5 transition-colors dark:bg-transparent">
+                Log In
+              </Link>
+              <Link to="/dashboard" className="px-4 py-2 rounded-md bg-teal text-white hover:bg-teal-dark transition-colors">
+                Apply Now
+              </Link>
+            </div>
+          )}
+          {isLoggedIn && (
+            <div className="flex gap-3">
+              <Link to="/dashboard" className="px-4 py-2 rounded-md bg-white border border-teal text-teal hover:bg-teal/5 transition-colors dark:bg-transparent">
+                Dashboard
+              </Link>
+              <Link to="/auth?tab=logout" className="px-4 py-2 rounded-md bg-teal text-white hover:bg-teal-dark transition-colors">
+                Log Out
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -71,20 +98,24 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="fixed inset-0 top-[60px] bg-white dark:bg-navy-dark z-40 animate-fade-in">
           <div className="container mx-auto px-6 py-8 flex flex-col gap-6">
-            <a
-              href="#programs"
-              className="text-lg py-3 border-b border-slate/10 text-navy-light dark:text-slate-light"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Programs
-            </a>
-            <a
-              href="#about"
-              className="text-lg py-3 border-b border-slate/10 text-navy-light dark:text-slate-light"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              About
-            </a>
+            {isHomePage && (
+              <>
+                <a
+                  href="#programs"
+                  className="text-lg py-3 border-b border-slate/10 text-navy-light dark:text-slate-light"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Programs
+                </a>
+                <a
+                  href="#about"
+                  className="text-lg py-3 border-b border-slate/10 text-navy-light dark:text-slate-light"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  About
+                </a>
+              </>
+            )}
             <a
               href="#stats"
               className="text-lg py-3 border-b border-slate/10 text-navy-light dark:text-slate-light"
@@ -99,21 +130,44 @@ const Navbar = () => {
             >
               Updates
             </a>
+
             <div className="flex flex-col gap-3 mt-4">
-              <Link
-                to="/auth"
-                className="py-3 rounded-md bg-white border border-teal text-teal dark:bg-transparent"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Log In
-              </Link>
-              <Link
-                to="/auth?tab=register"
-                className="py-3 rounded-md bg-teal text-white"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Apply Now
-              </Link>
+              {!isLoggedIn && (
+                <>
+                  <Link
+                    to="/auth"
+                    className="py-3 rounded-md bg-white border border-teal text-teal dark:bg-transparent"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    to="/auth?tab=register"
+                    className="py-3 rounded-md bg-teal text-white"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Apply Now
+                  </Link>
+                </>
+              )}
+              {isLoggedIn && (
+                <>
+                  <Link
+                    to="/dashboard"
+                    className="py-3 rounded-md bg-white border border-teal text-teal dark:bg-transparent"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    to="/auth?tab=logout"
+                    className="py-3 rounded-md bg-teal text-white"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Log Out
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

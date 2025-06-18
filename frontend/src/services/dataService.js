@@ -167,6 +167,29 @@ export const qualificationTypes = [
         { name: 'Certificate', code: 'CERTIFICATE' }
     ];
 
+export const languagesData = [
+    { name: 'English', code: 'EN' },
+    { name: 'Shona', code: 'SN' },
+    { name: 'Ndebele', code: 'ND' },
+    { name: 'French', code: 'FR' },
+    { name: 'Portuguese', code: 'PT' }, 
+    { name: 'Spanish', code: 'ES' },
+    { name: 'Chinese', code: 'ZH' },
+    { name: 'German', code: 'DE' },
+    { name: 'Italian', code: 'IT' },
+    { name: 'Russian', code: 'RU' },
+    { name: 'Japanese', code: 'JA' },
+    { name: 'Korean', code: 'KO' },
+    { name: 'Arabic', code: 'AR' },
+    { name: 'Hindi', code: 'HI' },
+    { name: 'Bengali', code: 'BN' },
+    { name: 'Urdu', code: 'UR' },
+    { name: 'Turkish', code: 'TR' },
+    { name: 'Vietnamese', code: 'VI' },
+    { name: 'Thai', code: 'TH' },
+    { name: 'Indonesian', code: 'ID' },
+]
+
 export const countriesData = [
     { name: 'Afghanistan', code: 'AF' },
     { name: 'Åland Islands', code: 'AX' },
