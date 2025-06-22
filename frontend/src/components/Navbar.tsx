@@ -11,9 +11,11 @@ const Navbar = () => {
   const token = localStorage.getItem('authToken');
   const urlPathname = window.location.pathname;
 
-  if (urlPathname === '/') {
-    setIsHomePage(true);
-  }
+
+  useEffect(() => {
+    setIsHomePage(urlPathname === '/');
+  }, [urlPathname]);
+
   useEffect(() => {
     setIsLoggedIn(!!token);
   }, [token]);

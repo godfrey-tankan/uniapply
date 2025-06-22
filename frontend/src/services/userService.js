@@ -93,3 +93,11 @@ export const getProgramsForSettings = async () => {
     throw error;
   }
 };
+
+export const getReviewersList = async () => {
+  const response = await axios.get(`${backendApi}/auth/users/reviewers-list/`, {
+    headers: getAuthHeaders(),
+    timeout: 5000
+  });
+  return response.data;
+};

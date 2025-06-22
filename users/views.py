@@ -10,6 +10,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import ValidationError
 from institutions.models import Program
 from institutions.serializers import MinimalProgramSerializer
+from users.utils.helper_serializers import MinimalUserSerializer
 
 
 from users.serializers.serializers import (
@@ -238,4 +239,18 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         serializer = MinimalProgramSerializer(programs_queryset, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='reviewers-list', permission_classes=[IsAuthenticated])
+    def reviewers_list(self, request):
+        user = request.user
+        reviewers = User.objects.filter(
+            is_active=True,
+            is_enroller=True
+        )
+        
+        if user.is_enroller and user.assigned_institution:
+            reviewers = reviewers.filter(assigned_institution=user.assigned_institution)
+        
+        serializer = MinimalUserSerializer(reviewers, many=True)
         return Response(serializer.data)
