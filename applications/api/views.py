@@ -599,6 +599,7 @@ class EnrollerActionsViewSet(viewsets.ViewSet):
             return Response({"status": "Document request sent to student"}, status=status.HTTP_200_OK)
 
         except Exception as e:
+            print('error occurred..',e)
             return Response(
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -657,6 +658,7 @@ class EnrollerActionsViewSet(viewsets.ViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
+            print('error occured..',e)
             return Response(
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

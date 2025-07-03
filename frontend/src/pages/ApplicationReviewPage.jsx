@@ -89,7 +89,6 @@ const ApplicationReviewPage = () => {
     }, [id, user, navigate]);
 
     const calculateSuitabilityScore = (studentPoints, programMinPoints) => {
-        console.log('Calculating suitability score...', studentPoints, programMinPoints);
 
         if (!studentPoints || !programMinPoints) return 50;
 
@@ -194,7 +193,7 @@ const ApplicationReviewPage = () => {
         try {
             const token = localStorage.getItem('authToken');
             await axios.post(
-                `/api/applications/${id}/request_documents/`,
+                `/api/enroller-actions/${id}/request_documents/`,
                 { documents_requested: requestedDocuments },
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
@@ -212,7 +211,7 @@ const ApplicationReviewPage = () => {
         try {
             const token = localStorage.getItem('authToken');
             await axios.post(
-                `/api/applications/${id}/offer_alternative/`,
+                `/api/enroller-actions/${id}/offer_alternative/`,
                 { alternative_program_id: programId },
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
@@ -237,6 +236,12 @@ const ApplicationReviewPage = () => {
             default:
                 return <FileText className="h-5 w-5 text-gray-500" />;
         }
+    };
+    const getStatusColor = (status) => {
+        const normalized = status.toLowerCase();
+        if (normalized === 'accepted') return 'text-green-600';
+        if (normalized === 'rejected') return 'text-red-600';
+        return 'text-orange-600';
     };
 
     if (loading) {
@@ -294,9 +299,10 @@ const ApplicationReviewPage = () => {
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
                                         <h4 className="text-sm font-medium text-gray-500">Applicant Suitability</h4>
-                                        <Badge variant="outline">{suitabilityScore}% Match</Badge>
+                                        <Badge variant="outline">{suitabilityScore}% Eligible</Badge>
                                     </div>
-                                    <Progress value={suitabilityScore} className="h-2" />
+
+                                    <Progress value={suitabilityScore} className="h-2 text-teal-500" />
                                     {suitabilityScore < 50 && (
                                         <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
                                             <AlertCircle className="h-3 w-3" />
@@ -322,7 +328,9 @@ const ApplicationReviewPage = () => {
                                         <h4 className="text-sm font-medium text-gray-500">Current Status</h4>
                                         <div className="flex items-center gap-2">
                                             {getStatusIcon()}
-                                            <span>{application.status}</span>
+                                            <span className={getStatusColor(application.status)}>
+                                                {application.status}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
