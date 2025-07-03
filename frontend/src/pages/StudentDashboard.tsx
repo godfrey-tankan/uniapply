@@ -1,14 +1,118 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../contexts/AuthContext'; // Adjusted path for contexts
+import { Button } from '../components/ui/button'; // Adjusted path for ui components
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'; // Adjusted path for ui components
 import { FilePlus2, Inbox, Clock, FileText, Bell, BookOpen, CheckCircle, Clock as ClockIcon, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import ApplicationPage from './Application';
-import Footer from '../components/Footer';
+import ApplicationPage from './Application'; // Assuming Application.jsx is in the same directory (e.g., src/pages/)
+import Footer from '../components/Footer'; // Adjusted path for components
 import axios from 'axios';
-import Loading from '@/components/Loading';
-import Chatbot from '@/components/Chatbot';
+import Loading from '../components/Loading'; // Adjusted path for components
+import Chatbot from '../components/Chatbot'; // Adjusted path for components
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../components/ui/dialog'; // Adjusted path for ui components
+import { ScrollArea, ScrollBar } from '../components/ui/scroll-area'; // Adjusted path for ui components
+
+// Helper function to format dates
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
+// Notification Modal Component
+const NotificationModal = ({ notifications, onMarkAsRead, onMarkAllAsRead, onNotificationClick, onClose }) => {
+  const unreadNotifications = notifications.filter(n => !n.is_read);
+  const readNotifications = notifications.filter(n => n.is_read);
+
+  return (
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" /> Notifications
+          </DialogTitle>
+          <DialogDescription>
+            Your latest updates and alerts from the university.
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="flex-1 pr-4">
+          <div className="space-y-4">
+            {unreadNotifications.length > 0 && (
+              <>
+                <div className="flex justify-between items-center">
+                  <h3 className="font-semibold text-lg">Unread ({unreadNotifications.length})</h3>
+                  <Button variant="ghost" size="sm" onClick={onMarkAllAsRead}>
+                    Mark all as read
+                  </Button>
+                </div>
+                {unreadNotifications.map(notification => (
+                  <div
+                    key={notification.id}
+                    className="bg-blue-50 border border-blue-200 rounded-md p-3 cursor-pointer hover:bg-blue-100 transition-colors"
+                    onClick={() => onNotificationClick(notification)}
+                  >
+                    <h4 className="font-medium text-blue-800">{notification.title}</h4>
+                    <p className="text-sm text-blue-700 truncate">{notification.content}</p>
+                    <p className="text-xs text-gray-500 mt-1">{formatDate(notification.created_at)}</p>
+                  </div>
+                ))}
+              </>
+            )}
+            {readNotifications.length > 0 && (
+              <>
+                <h3 className="font-semibold text-lg mt-6">Read</h3>
+                {readNotifications.map(notification => (
+                  <div
+                    key={notification.id}
+                    className="bg-gray-50 border border-gray-200 rounded-md p-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => onNotificationClick(notification)}
+                  >
+                    <h4 className="font-medium text-gray-800">{notification.title}</h4>
+                    <p className="text-sm text-gray-600 truncate">{notification.content}</p>
+                    <p className="text-xs text-gray-500 mt-1">{formatDate(notification.created_at)}</p>
+                  </div>
+                ))}
+              </>
+            )}
+            {notifications.length === 0 && (
+              <p className="text-center text-gray-500 py-8">No notifications to display.</p>
+            )}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+        <DialogFooter className="mt-4">
+          <Button onClick={onClose}
+            className='bg-teal-500 hover:bg-teal-600 text-white'
+          >Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Read Notification Detail Modal Component
+const ReadNotificationDetailModal = ({ notification, onClose }) => {
+  if (!notification) return null;
+
+  return (
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>{notification.title}</DialogTitle>
+          <DialogDescription>
+            <p className="text-xs text-gray-500">{formatDate(notification.created_at)}</p>
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="text-gray-700 whitespace-pre-wrap">{notification.content}</p>
+        </div>
+        <DialogFooter>
+          <Button onClick={onClose}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
@@ -17,16 +121,23 @@ const StudentDashboard = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('applications'); // 'applications', 'messages', or 'deadlines'
+  const [activeTab, setActiveTab] = useState('applications'); // 'applications', 'messages', 'notifications', 'deadlines', 'profile'
   const [profileCompletion, setProfileCompletion] = useState({
     completion_percentage: 0,
     education_history_count: 0,
     documents_count: 0,
   });
+  const [notifications, setNotifications] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [deadlines, setDeadlines] = useState([]);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
 
-  const fetchProfileCompletion = async () => {
+  const token = localStorage.getItem('authToken');
+
+  // Fetch Profile Completion
+  const fetchProfileCompletion = useCallback(async () => {
     try {
-      const token = localStorage.getItem('authToken');
       const response = await axios.get('/auth/profile-completion/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -34,23 +145,14 @@ const StudentDashboard = () => {
     } catch (error) {
       console.error('Error fetching profile completion:', error);
     }
-  };
+  }, [token]);
 
-  useEffect(() => {
-    if (user && user.is_student) {
-      fetchApplications();
-      fetchProfileCompletion();
-    }
-  }, [user]);
-
-  const fetchApplications = async () => {
+  // Fetch Applications
+  const fetchApplications = useCallback(async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('authToken');
       const response = await axios.get(`/api/applications/my_applications/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       setApplications(response.data);
       setError(null);
@@ -60,11 +162,87 @@ const StudentDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  // Fetch Notifications
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const response = await axios.get(`/api/notifications/my_notifications/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setNotifications(response.data);
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+    }
+  }, [token]);
+
+  // Mark a single notification as read
+  const markNotificationAsRead = useCallback(async (notificationId) => {
+    try {
+      await axios.patch(`/api/notifications/${notificationId}/mark_as_read/`, {}, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setNotifications(prev => prev.map(n =>
+        n.id === notificationId ? { ...n, is_read: true } : n
+      ));
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
+    }
+  }, [token]);
+
+  // Mark all unread notifications as read
+  const markAllNotificationsAsRead = useCallback(async () => {
+    try {
+      await axios.post(`/api/notifications/mark_all_as_read/`, {}, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    } catch (err) {
+      console.error('Error marking all notifications as read:', err);
+    }
+  }, [token]);
+
+  // Fetch Messages
+  const fetchMessages = useCallback(async () => {
+    try {
+      const response = await axios.get(`/api/messages/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setMessages(response.data);
+    } catch (err) {
+      console.error('Error fetching messages:', err);
+    }
+  }, [token]);
+
+  // Fetch Deadlines
+  const fetchDeadlines = useCallback(async () => {
+    try {
+      const response = await axios.get(`/api/deadlines/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setDeadlines(response.data);
+    } catch (err) {
+      console.error('Error fetching deadlines:', err);
+    }
+  }, [token]);
+
+
+  useEffect(() => {
+    if (user && user.is_student) {
+      fetchApplications();
+      fetchProfileCompletion();
+      // Fetch all data on initial load
+      fetchNotifications();
+      fetchMessages();
+      fetchDeadlines();
+    } else if (!user) {
+      navigate('/dashboard'); // Redirect if user is not logged in
+    }
+  }, [user, navigate, fetchApplications, fetchProfileCompletion, fetchNotifications, fetchMessages, fetchDeadlines]);
+
 
   if (!user || !user.is_student) {
-    navigate('/dashboard');
-    return null;
+    return <Loading />; // Show loading or redirect immediately if not student
   }
 
   const handleApplicationSubmit = () => {
@@ -85,9 +263,11 @@ const StudentDashboard = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+  const handleNotificationClick = (notification) => {
+    setSelectedNotification(notification);
+    if (!notification.is_read) {
+      markNotificationAsRead(notification.id);
+    }
   };
 
   if (showApplicationPage) {
@@ -140,8 +320,13 @@ const StudentDashboard = () => {
               <h1 className="text-xl font-bold text-navy">Student Dashboard</h1>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={() => setShowNotificationsModal(true)}>
                 <Bell className="h-5 w-5" />
+                {notifications.filter(n => !n.is_read).length > 0 && (
+                  <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                    {notifications.filter(n => !n.is_read).length}
+                  </span>
+                )}
               </Button>
               <div className="flex items-center gap-2">
                 <div className="rounded-full bg-teal/10 w-10 h-10 flex items-center justify-center text-teal font-medium">
@@ -282,7 +467,7 @@ const StudentDashboard = () => {
                             <div key={app.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h3 className="font-medium">{app.program.name}</h3>
+                                  <h3 className="font-medium">{app.program?.name || 'N/A'}</h3>
                                   <p className="text-sm text-gray-600">{app.institution?.name || 'N/A'}</p>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -322,18 +507,10 @@ const StudentDashboard = () => {
                 </Card>
               </div>
 
-              {/* Sidebar */}
+              {/* Profile Completion & Resources Column */}
               <div className="space-y-6">
-                {loading &&
-
-                  <div className="flex justify-center items-center h-screen">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-4 border-teal"></div>
-                  </div>
-
-                }
                 <Card>
                   <CardHeader>
-
                     <CardTitle>Profile Completion</CardTitle>
                     <CardDescription>Complete your profile to improve your applications</CardDescription>
                   </CardHeader>
@@ -364,7 +541,6 @@ const StudentDashboard = () => {
                         )}
                         <span>Upload documents</span>
                       </li>
-
                     </ul>
                     <Button
                       variant="outline"
@@ -403,34 +579,32 @@ const StudentDashboard = () => {
           )}
 
           {activeTab === 'messages' && (
-            <Card >
+            <Card>
               <CardHeader>
                 <CardTitle>Messages</CardTitle>
-                <CardDescription>Communications from universities</CardDescription>
+                <CardDescription>Communications from universities and system alerts.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4 pb-4 border-b border-gray-100">
-                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
-                      <span className="text-teal-600 font-medium">A</span>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Admissions Office</h3>
-                      <p className="text-sm text-gray-500">Your application is under review</p>
-                      <p className="text-xs text-gray-400 mt-1">February 28, 2024</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-blue-600 font-medium">S</span>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Scholarship Committee</h3>
-                      <p className="text-sm text-gray-500">You may qualify for financial aid</p>
-                      <p className="text-xs text-gray-400 mt-1">February 15, 2024</p>
-                    </div>
-                  </div>
-                </div>
+                {messages.length === 0 ? (
+                  <p className="text-center text-gray-500 py-8">No messages to display.</p>
+                ) : (
+                  <ScrollArea className="max-h-[550px] overflow-y-auto space-y-4 pr-4">
+                    {messages.map(message => (
+                      <div key={message.id} className={`flex items-start gap-4 pb-4 border-b border-gray-100 ${!message.is_read ? 'font-semibold' : ''}`}>
+                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
+                          <span className="text-teal-600 font-medium">{message.sender.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div>
+                          <h3 className="font-medium">{message.subject}</h3>
+                          <p className="text-sm text-gray-500">{message.sender}</p>
+                          <p className="text-xs text-gray-400 mt-1">{formatDate(message.created_at)}</p>
+                          <p className="text-sm mt-2">{message.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                    <ScrollBar orientation="vertical" />
+                  </ScrollArea>
+                )}
               </CardContent>
             </Card>
           )}
@@ -439,38 +613,49 @@ const StudentDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Application Deadlines</CardTitle>
-                <CardDescription>Important dates for your applications</CardDescription>
+                <CardDescription>Important dates for your applications and programs.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center pb-4 border-b border-gray-100">
-                    <div>
-                      <h3 className="font-medium">Application Submission</h3>
-                      <p className="text-sm text-gray-500">Last date to submit your application</p>
-                    </div>
-                    <span className="font-medium">March 15, 2024</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-4 border-b border-gray-100">
-                    <div>
-                      <h3 className="font-medium">Document Submission</h3>
-                      <p className="text-sm text-gray-500">Last date to submit supporting documents</p>
-                    </div>
-                    <span className="font-medium">March 22, 2024</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium">Decision Notification</h3>
-                      <p className="text-sm text-gray-500">When you'll receive admission decision</p>
-                    </div>
-                    <span className="font-medium">April 30, 2024</span>
-                  </div>
-                </div>
+                {deadlines.length === 0 ? (
+                  <p className="text-center text-gray-500 py-8">No upcoming deadlines.</p>
+                ) : (
+                  <ScrollArea className="max-h-[550px] overflow-y-auto space-y-4 pr-4">
+                    {deadlines.map(deadline => (
+                      <div key={deadline.id} className="flex justify-between items-center pb-4 border-b border-teal-100">
+                        <div>
+                          <h3 className="font-medium text-teal-700 ">{deadline.title}</h3>
+                          <p className="text-sm text-gray-500">{deadline.description}</p>
+                          {deadline.program_name && <p className="text-xs text-gray-500">Program: {deadline.program_name}</p>}
+                        </div>
+                        <span className="font-medium text-teal-600">{formatDate(deadline.date)}</span>
+                      </div>
+                    ))}
+                    <ScrollBar orientation="vertical" />
+                  </ScrollArea>
+                )}
               </CardContent>
             </Card>
           )}
-
         </main>
       </div>
+
+      {showNotificationsModal && (
+        <NotificationModal
+          notifications={notifications}
+          onMarkAsRead={markNotificationAsRead}
+          onMarkAllAsRead={markAllNotificationsAsRead}
+          onNotificationClick={handleNotificationClick}
+          onClose={() => setShowNotificationsModal(false)}
+        />
+      )}
+
+      {selectedNotification && (
+        <ReadNotificationDetailModal
+          notification={selectedNotification}
+          onClose={() => setSelectedNotification(null)}
+        />
+      )}
+
       <Chatbot />
       <Footer />
     </div>

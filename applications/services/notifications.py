@@ -2,9 +2,11 @@
 from django.contrib.auth import get_user_model
 from applications.models.models import Notification, Application
 from django.utils import timezone
+from celery import shared_task
 
 User = get_user_model()
 
+@shared_task
 def send_notification(user, title, message, notification_type):
     """
     Send a notification to a user
@@ -19,6 +21,7 @@ def send_notification(user, title, message, notification_type):
     
     # In a real app, you would also send email/push notifications here
 
+@shared_task
 def notify_students_of_new_program(program):
     """
     Notify students who might be interested in a new program
@@ -37,6 +40,7 @@ def notify_students_of_new_program(program):
             notification_type="PROGRAM_ADDED"
         )
 
+@shared_task
 def notify_students_of_deadline(deadline):
     """
     Notify students with pending applications about a new deadline
@@ -48,7 +52,7 @@ def notify_students_of_deadline(deadline):
     ).distinct()
     
     for student in students:
-        send_notification(
+        send_notification.delay(
             user=student,
             title="Important Deadline",
             message=f"New deadline for {deadline.title}: {deadline.date}",

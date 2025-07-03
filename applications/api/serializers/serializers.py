@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from applications.models.models import Application, ApplicationDocument, ActivityLog, Deadline, Message
+from applications.models.models import Application, ApplicationDocument, ActivityLog, Deadline, Message, Notification
 from institutions.models import Institution, Program, Department
 from django.contrib.auth import get_user_model 
 User = get_user_model()
@@ -33,6 +33,11 @@ class ApplicationDocumentSerializer(serializers.ModelSerializer):
         fields = ['id', 'file', 'uploaded_at']
         read_only_fields = ['uploaded_at']
 
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'user', 'title', 'message', 'is_read','created_at', 'notification_type', 'read_at']
+        read_only_fields = ['user', 'created_at', 'is_read']
 
 class ApplicationSerializer(serializers.ModelSerializer):
     student = UserBasicSerializer(read_only=True)

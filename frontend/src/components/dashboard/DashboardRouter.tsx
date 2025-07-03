@@ -21,8 +21,14 @@ const DashboardRouter = () => {
           navigate("/student-dashboard");
         } else if (user.is_system_admin) {
           navigate("/admin-dashboard");
-        } else {
+        } else if (user.is_university_admin) {
+          navigate("/university-admin-dashboard");
+        }
+        else if (user.is_enroller) {
           navigate("/enroller-dashboard");
+        } else {
+          console.warn("User role not recognized, redirecting to /");
+          navigate("/");
         }
       }
     }

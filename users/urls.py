@@ -17,7 +17,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.conf.urls.static import static
 from django.conf import settings
-
+from users.api.admins import SystemAdminViewSet
 router = DefaultRouter()
 # router.register(r'user-education-history', EducationHistoryViewSet, basename='user-education-history')
 router.register(r'user-documents', UserDocumentViewSet, basename='user-documents')

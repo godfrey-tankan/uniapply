@@ -5,8 +5,9 @@ from django.conf import settings
 from applications.models.models import ActivityLog
 from applications.models.models import Application
 from django.core.mail import send_mail
+from celery import shared_task
 
-
+@shared_task
 def send_status_email(application, request):
     """
     Send email notification when application status changes
@@ -64,12 +65,15 @@ def send_status_email(application, request):
             }
         )
 
+@shared_task
 def send_application_confirmation(application, request):
     """
     Send email when application is first created
     """
     # Similar implementation to send_status_email
+ 
     # using application_created.html template
+@shared_task
 def send_deadline_event(request, deadline):
     """
     Send email message for new deadlines
@@ -134,7 +138,7 @@ def send_deadline_event(request, deadline):
                 }
             )
 
-
+@shared_task
 def send_document_request_email(application, documents_requested, request):
     subject = f"Document Request for Your Application to {application.program.name}"
     html_message = render_to_string(
@@ -155,6 +159,7 @@ def send_document_request_email(application, documents_requested, request):
         html_message=html_message
     )
 
+@shared_task
 def send_program_alternative_email(application, alternative_program, request):
     subject = f"Alternative Program Offer for Your Application"
     html_message = render_to_string(
@@ -175,7 +180,7 @@ def send_program_alternative_email(application, alternative_program, request):
         html_message=html_message
     )
 
-
+@shared_task
 def send_application_email(application, request, email_type='status_change'):
     """
     Generic function to send different types of application emails

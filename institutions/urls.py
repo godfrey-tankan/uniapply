@@ -10,10 +10,12 @@ from .views import (
     InstitutionProgramsView, 
     ProgramDetailsViewSet,
     public_programs, 
-    InstitutionNameProgramsView
+    InstitutionNameProgramsView,
+    UniversityAdminViewSet
 )
 from institutions.api.views.programs import ProgramCreateViewSet
 from institutions.api.views.departments import DepartmentCreateViewSet
+from users.api.admins import SystemAdminViewSet
 
 router = DefaultRouter()
 router.register(r'institutions', InstitutionsViewSet, basename='institutions')
@@ -24,6 +26,9 @@ router.register(r'create-departments', DepartmentCreateViewSet, basename='create
 router.register(r'programs', ProgramViewSet, basename='programs')
 router.register(r'create-programs', ProgramCreateViewSet, basename='create-programs')
 router.register(r'program-details', ProgramDetailsViewSet, basename='program-details')
+router.register(r'university-admin', UniversityAdminViewSet, basename='university-admin')
+router.register(r'system-admin', SystemAdminViewSet, basename='system-admin')
+
 
 urlpatterns = [
     path('institutions/<int:institution_id>/programs/', InstitutionProgramsView.as_view(), name='institution-programs'),

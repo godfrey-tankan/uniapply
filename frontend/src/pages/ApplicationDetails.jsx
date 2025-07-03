@@ -10,6 +10,7 @@ import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 import Footer from '@/components/Footer'
 import Chatbot from '@/components/Chatbot';
+import Navbar from '@/components/Navbar';
 
 const ApplicationDetails = () => {
     const { id } = useParams();
@@ -161,107 +162,110 @@ const ApplicationDetails = () => {
 
 
         return (
-            <div className="space-y-6">
-                {/* Current Program Stats */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                        <Target className="h-4 w-4 text-teal-600" />
-                        <h4 className="font-medium">Your Current Choice</h4>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg border shadow-sm">
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <h5 className="font-medium">{recommendations.current_program.program_name}</h5>
-                                <p className="text-sm text-gray-600">{recommendations.current_program.institution}</p>
-                            </div>
-                            {renderProbabilityBadge(recommendations.current_program.acceptance_probability)}
+            <>
+                <Navbar />
+                <div className="space-y-6 mt-6">
+                    {/* Current Program Stats */}
+                    <div className="space-y-3 pt-7">
+                        <div className="flex items-center gap-2">
+                            <Target className="h-4 w-4 text-teal-600" />
+                            <h4 className="font-medium">Your Current Choice</h4>
                         </div>
-                        <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                            <div>
-                                <p className="text-gray-500">Your Points</p>
-                                <p>{recommendations.current_program.student_points}</p>
+                        <div className="bg-white p-4 rounded-lg border shadow-sm">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h5 className="font-medium">{recommendations.current_program.program_name}</h5>
+                                    <p className="text-sm text-gray-600">{recommendations.current_program.institution}</p>
+                                </div>
+                                {renderProbabilityBadge(recommendations.current_program.acceptance_probability)}
                             </div>
-                            <div>
-                                <p className="text-gray-500">Min Required</p>
-                                <p>{recommendations.current_program.min_points_required}</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-500">Total Applicants</p>
-                                <p>{recommendations.current_program.total_applicants}</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-500">Higher Points</p>
-                                <p>{recommendations.current_program.applicants_with_higher_points}</p>
+                            <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                                <div>
+                                    <p className="text-gray-500">Your Points</p>
+                                    <p>{recommendations.current_program.student_points}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-500">Min Required</p>
+                                    <p>{recommendations.current_program.min_points_required}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-500">Total Applicants</p>
+                                    <p>{recommendations.current_program.total_applicants}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-500">Higher Points</p>
+                                    <p>{recommendations.current_program.applicants_with_higher_points}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-purple-600" />
-                        <h4 className="font-medium">Recommended Alternatives</h4>
-                    </div>
-                    <div
-                        className="space-y-3 overflow-y-auto"
-                        style={{
-                            maxHeight: '400px',  // Fixed height
-                            scrollbarWidth: 'thin',  // For Firefox
-                        }}
-                    >
-                        {recommendations.alternatives.map((program, index) => (
-                            <div
-                                key={index}
-                                className="bg-white p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
-                            >
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h5 className="font-medium">{program.program_name}</h5>
-                                        <p className="text-sm text-gray-600">{program.institution}</p>
-                                    </div>
-                                    {renderProbabilityBadge(program.acceptance_probability)}
-                                </div>
-                                <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                                    <div>
-                                        <p className="text-gray-500">Your Points</p>
-                                        <p>{program.student_points}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-500">Min Required</p>
-                                        <p>{program.min_points_required}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-500">Total Applicants</p>
-                                        <p>{program.total_applicants}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-500">Higher Points</p>
-                                        <p>{program.applicants_with_higher_points}</p>
-                                    </div>
-                                </div>
-                                <div className="mt-3">
-                                    <p className="text-xs text-gray-500">Required Subjects:</p>
-                                    <div className="flex flex-wrap gap-1 mt-1">
-                                        {program.required_subjects.map((subject, idx) => (
-                                            <span key={idx} className="px-2 py-1 bg-gray-100 rounded-full text-xs">
-                                                {subject}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="mt-3 w-full"
-                                    onClick={() => navigate(`/api/program-details/${program.program_id}/stats`)}
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 text-purple-600" />
+                            <h4 className="font-medium">Recommended Alternatives</h4>
+                        </div>
+                        <div
+                            className="space-y-3 overflow-y-auto"
+                            style={{
+                                maxHeight: '400px',  // Fixed height
+                                scrollbarWidth: 'thin',  // For Firefox
+                            }}
+                        >
+                            {recommendations.alternatives.map((program, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-white p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
                                 >
-                                    View Program Details <ChevronRight className="h-4 w-4 ml-2" />
-                                </Button>
-                            </div>
-                        ))}
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h5 className="font-medium">{program.program_name}</h5>
+                                            <p className="text-sm text-gray-600">{program.institution}</p>
+                                        </div>
+                                        {renderProbabilityBadge(program.acceptance_probability)}
+                                    </div>
+                                    <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                                        <div>
+                                            <p className="text-gray-500">Your Points</p>
+                                            <p>{program.student_points}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500">Min Required</p>
+                                            <p>{program.min_points_required}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500">Total Applicants</p>
+                                            <p>{program.total_applicants}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500">Higher Points</p>
+                                            <p>{program.applicants_with_higher_points}</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-3">
+                                        <p className="text-xs text-gray-500">Required Subjects:</p>
+                                        <div className="flex flex-wrap gap-1 mt-1">
+                                            {program.required_subjects.map((subject, idx) => (
+                                                <span key={idx} className="px-2 py-1 bg-gray-100 rounded-full text-xs">
+                                                    {subject}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-3 w-full"
+                                        onClick={() => navigate(`/api/program-details/${program.program_id}/stats`)}
+                                    >
+                                        View Program Details <ChevronRight className="h-4 w-4 ml-2" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </>
         );
     };
 
@@ -306,8 +310,7 @@ const ApplicationDetails = () => {
                     {/* Header */}
                     <div className="flex items-center justify-between mb-8">
                         <Button variant="ghost" onClick={() => navigate(-1)} className="flex items-center gap-2">
-                            <ArrowLeft className="h-5 w-5" />
-                            Back to Applications
+
                         </Button>
                         <div className="flex items-center gap-4">
                             <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${application.status === 'Approved' ? 'bg-green-100 text-green-800' :

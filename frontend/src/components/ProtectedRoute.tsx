@@ -9,6 +9,7 @@ const ProtectedRoute = ({ allowedRoles }: { allowedRoles: string[] }) => {
     if (loading) {
         return <Loading />; // Or a loader component here
     }
+    console.log('allowedRoles:', allowedRoles);
 
     console.log('isAuthenticated:', isAuthenticated);
     console.log('user:', user);
@@ -39,6 +40,7 @@ const ProtectedRoute = ({ allowedRoles }: { allowedRoles: string[] }) => {
 
         // Check if the user has any role that matches allowedRoles
         const hasAccess = allowedRoles.some(role => {
+            console.log('Checking role:', role);
             const mappedRole = roleMap[role];  // Get the mapped property name
             console.log('mappedRole:', mappedRole);
             return userRoles[mappedRole];  // Check if the user has that role (boolean)

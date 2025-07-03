@@ -119,6 +119,8 @@ class FacultyCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Faculty
         fields = ['id', 'name', 'code', 'description', 'institution']
+        read_only_fields =['institution']
+        
 
     def validate_institution(self, value):
         user = self.context['request'].user
@@ -130,7 +132,7 @@ class FacultyCreateSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        validated_data['created_by'] = self.context['request'].user
+        validated_data['institution'] = self.context['request'].user.assigned_institution
         return super().create(validated_data)
 
 

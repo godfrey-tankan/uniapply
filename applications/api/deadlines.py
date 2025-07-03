@@ -28,7 +28,9 @@ class DeadlineViewSet(viewsets.ModelViewSet):
         elif user.is_system_admin:
             queryset = queryset.filter(date__gte=timezone.now().date())
         else:
-            queryset = queryset.none()
+            # queryset = queryset.none()
+            queryset = queryset.filter(date__gte=timezone.now().date())
+            
             
         return queryset.order_by('date')
 
@@ -49,10 +51,9 @@ class DeadlineViewSet(viewsets.ModelViewSet):
             
             from applications.services.notifications import notify_students_of_deadline
             from applications.services.emails import send_deadline_event
-            notify_students_of_deadline(deadline)
-            send_deadline_event(request, deadline)
-            
-            
+            notify_students_of_deadline.delay(deadline)
+            send_deadline_event.delay(request, deadline)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             print(f"Error creating deadline: {e}")

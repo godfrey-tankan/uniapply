@@ -3,11 +3,19 @@ from rest_framework.response import Response
 
 from rest_framework import viewsets, filters, status, permissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from applications.models.models import Application, ApplicationDocument, Deadline, ActivityLog, Message
+from applications.models.models import Application, ApplicationDocument, Deadline, ActivityLog, Message, Notification
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers.serializers import ApplicationSerializer, ApplicationStatusSerializer, ActivityLogSerializer, DocumentRequestSerializer, MessageSerializer,ProgramAlternativeSerializer
+from .serializers.serializers import (
+    ApplicationSerializer, 
+    ApplicationStatusSerializer, 
+    ActivityLogSerializer, 
+    DocumentRequestSerializer, 
+    MessageSerializer,
+    ProgramAlternativeSerializer,
+    NotificationSerializer
+)
 from ..services.permissions import IsStudentOwnerOrAdmin, IsAdminForStatusChange
 from django.contrib.auth import get_user_model
 from django.db.models import Count, F, Q, Avg
@@ -21,6 +29,7 @@ from applications.services.emails import (
 from applications.services.notifications import send_notification
 from django.http import Http404
 import time  
+from django.utils import timezone
 User = get_user_model()
 
 @api_view(['POST'])
@@ -582,14 +591,14 @@ class EnrollerActionsViewSet(viewsets.ViewSet):
             )
 
             # Send email notification to student
-            send_document_request_email(
+            send_document_request_email.delay(
                 application=application,
                 documents_requested=serializer.validated_data['documents_requested'],
                 request=request
             )
 
             # Create notification for student
-            send_notification(
+            send_notification.delay(
                 user=application.student,
                 title="Document Request",
                 message=f"{request.user.name} requested additional documents for your application",
@@ -633,14 +642,14 @@ class EnrollerActionsViewSet(viewsets.ViewSet):
             )
 
             # Send email notification to student
-            send_program_alternative_email(
+            send_program_alternative_email.delay(
                 application=application,
                 alternative_program=alternative_program,
                 request=request
             )
 
             # Create notification for student
-            send_notification(
+            send_notification.delay(
                 user=application.student,
                 title="Alternative Program Offered",
                 message=f"{request.user.name} offered you an alternative program: {alternative_program.name}",
@@ -751,7 +760,7 @@ class EnrollerActionsViewSet(viewsets.ViewSet):
             )
 
             # Create notification for student
-            send_notification(
+            send_notification.delay(
                 user=application.student,
                 title="New Message",
                 message=f"{request.user.name} sent you a message about your application",
@@ -822,3 +831,32 @@ class EnrollerActionsViewSet(viewsets.ViewSet):
             return application
         except Application.DoesNotExist:
             raise Http404("Application not found")
+
+class NotificationViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def my_notifications(self, request):
+        """Get notifications for the current user"""
+        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'])
+    def mark_as_read(self, request, pk=None):
+        """Mark a specific notification as read"""
+        try:    
+            notification = Notification.objects.get(id=pk, user=request.user)
+            notification.mark_as_read()
+            return Response({"status": "Notification marked as read"}, status=status.HTTP_200_OK)
+        except Notification.DoesNotExist:
+            return Response({"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
+    @action(detail=False, methods=['post'])
+    def mark_all_as_read(self, request):
+        """Mark all notifications as read"""
+        notifications = Notification.objects.filter(user=request.user, is_read=False)
+        if not notifications.exists():
+            return Response({"status": "No unread notifications"}, status=status.HTTP_204_NO_CONTENT)
+        
+        notifications.update(is_read=True, read_at=timezone.now())
+        return Response({"status": "All notifications marked as read"}, status=status.HTTP_200_OK)

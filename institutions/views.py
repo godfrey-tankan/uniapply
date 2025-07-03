@@ -283,5 +283,190 @@ class ProgramDetailsViewSet(viewsets.ModelViewSet):
             'regions': {item['student__province']: item['count'] for item in region_distribution}
         }
 
+class UniversityAdminViewSet(viewsets.ViewSet):
+    # Default permission classes for the entire ViewSet
+    permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        Overrides the default permission_classes for specific actions.
+        """
+        permission_classes = self.permission_classes
 
+        if self.action in ['create_enroller', 'manage_faculty', 'manage_department', 'manage_program']:
+            permission_classes = [IsAuthenticated, permissions.IsAdminUser]
+        
+        return [permission() for permission in permission_classes]
+
+    @action(detail=False, methods=['get'])
+    def dashboard_stats(self, request):
+        """Get comprehensive stats for university admin dashboard"""
+        if not request.user.is_university_admin:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        institution_id = request.user.assigned_institution.id if request.user.assigned_institution else None
+        if not institution_id:
+            return Response({"error": "No institution assigned"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Application trends by month
+        trends = (
+            Application.objects
+            .filter(program__department__faculty__institution_id=institution_id)
+            .annotate(month=ExtractMonth('date_applied'), year=ExtractYear('date_applied'))
+            .values('month', 'year')
+            .annotate(count=Count('id'))
+            .order_by('year', 'month')
+        )
+
+        # Status distribution
+        status_dist = (
+            Application.objects
+            .filter(program__department__faculty__institution_id=institution_id)
+            .values('status')
+            .annotate(count=Count('id'))
+        )
+
+        # Program popularity
+        program_popularity = (
+            Program.objects
+            .filter(department__faculty__institution_id=institution_id)
+            .annotate(applications_count=Count('applications'))
+            .order_by('-applications_count')[:5]
+            .values('name', 'applications_count')
+        )
+
+        # Faculty distribution
+        faculty_dist = (
+            Faculty.objects
+            .filter(institution_id=institution_id)
+            .annotate(applications_count=Count('departments__programs__applications'))
+            .order_by('-applications_count')
+            .values('name', 'applications_count')
+        )
+
+        return Response({
+            'application_trends': list(trends),
+            'status_distribution': list(status_dist),
+            'program_popularity': list(program_popularity),
+            'faculty_distribution': list(faculty_dist),
+        })
+
+    @action(detail=False, methods=['post'])
+    def create_enroller(self, request):
+        """Create a new enroller user"""
+        if not request.user.is_university_admin:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        required_fields = ['email', 'name', 'password']
+        if not all(field in request.data for field in required_fields):
+            print('error: Missing required fields:', request.data)
+            return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.create_user(
+                email=request.data['email'],
+                username=request.data['email'],  # Use email as username
+                name=request.data['name'],
+                password=request.data['password'],
+                is_enroller=True,
+                assigned_institution=request.user.assigned_institution
+            )
+            return Response({"message": "Enroller created successfully", "user_id": user.id})
+        except Exception as e:
+            print('error: Exception while creating enroller:', str(e))
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def list_enrollers(self, request):
+        """List all enrollers for the institution"""
+        if not request.user.is_university_admin:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        institution_id = request.user.assigned_institution.id if request.user.assigned_institution else None
+        if not institution_id:
+            return Response({"error": "No institution assigned"}, status=status.HTTP_400_BAD_REQUEST)
+
+        enrollers = User.objects.filter(
+            is_enroller=True,
+            assigned_institution_id=institution_id
+        ).values('id', 'name', 'email', 'last_login')
+
+        return Response(list(enrollers))
+
+    @action(detail=False, methods=['post'])
+    def manage_faculty(self, request):
+        """Create/update faculty"""
+        if not request.user.is_university_admin:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = FacultyCreateSerializer(data=request.data, context={'request': request})
+        
+        if serializer.is_valid():
+            serializer.save() 
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'])
+    def manage_department(self, request):
+        """Create/update department"""
+        if not request.user.is_university_admin:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = DepartmentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'])
+    def manage_program(self, request):
+        """Create/update program"""
+        if not request.user.is_university_admin:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = ProgramCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=False, methods=['get'],url_path='faculties')
+    def get_institution_faculties(self, request):
+        """Get all faculties for the institution"""
+        if not request.user.is_university_admin:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        institution_id = request.user.assigned_institution.id if request.user.assigned_institution else None
+        if not institution_id:
+            return Response({"error": "No institution assigned"}, status=status.HTTP_400_BAD_REQUEST)
+        faculties = Faculty.objects.filter(institution_id=institution_id).values('id', 'name', 'code')
+        return Response(list(faculties))
+    
+    @action(detail=False, methods=['get'],url_path='departments')
+    def get_institution_departments(self, request):
+        """Get all departments for the institution"""
+        if not request.user.is_university_admin:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        institution_id = request.user.assigned_institution.id if request.user.assigned_institution else None
+        if not institution_id:
+            return Response({"error": "No institution assigned"}, status=status.HTTP_400_BAD_REQUEST)
+        departments = Department.objects.filter(    
+            faculty__institution_id=institution_id
+        ).values('id', 'name', 'faculty__name')
+        return Response(list(departments))
+    
+    @action(detail=False, methods=['get'],url_path='programs')
+    def get_institution_programs(self, request):
+        """Get all programs for the institution"""
+        if not request.user.is_university_admin:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        institution_id = request.user.assigned_institution.id if request.user.assigned_institution else None
+        if not institution_id:
+            return Response({"error": "No institution assigned"}, status=status.HTTP_400_BAD_REQUEST)
+        programs = Program.objects.filter(
+            department__faculty__institution_id=institution_id
+        ).values('id', 'name', 'code', 'department__name', 'min_points_required')
+        return Response(list(programs))

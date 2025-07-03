@@ -21,6 +21,7 @@ import ApplicationReviewPage from '@/pages/ApplicationReviewPage';
 import ProgramsPage from './pages/ProgramsPage';
 import EnrollerSettingsPage from './pages/EnrollerSettingsPage';
 import Applications from './pages/Applications';
+import UniversityAdminDashboard from './pages/UniversityAdminDashboard';
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,9 @@ const App = () => (
             {/* 🔹 Secure Dashboard Routes */}
             <Route element={<ProtectedRoute allowedRoles={["is_system_admin"]} />}>
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={["is_university_admin"]} />}>
+              <Route path="/university-admin-dashboard" element={<UniversityAdminDashboard />} />
             </Route>
 
             <Route element={<ProtectedRoute allowedRoles={["is_student"]} />}>

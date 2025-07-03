@@ -631,7 +631,7 @@ const EnrollerDashboard = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-sm">
+                <Card className="shadow-sm overflow-auto scrollbar-hide h-96 ">
                   <CardHeader>
                     <div className="flex justify-between items-center">
                       <div>
@@ -691,7 +691,7 @@ const EnrollerDashboard = () => {
               </div>
 
               {/* Sidebar Column */}
-              <div className="space-y-6">
+              <div className="space-y-6 h-1/2  overflow-y-scroll">
                 {/* Student Messages Card */}
                 <Card className="shadow-sm">
                   <CardHeader>
@@ -730,7 +730,7 @@ const EnrollerDashboard = () => {
                     )}
                     <Button
                       variant="outline"
-                      className="w-full mt-4 border-teal-500 text-teal-600 hover:bg-teal-50"
+                      className="w-full mt-4 border-teal-500 text-teal-600 hover:bg-teal-700"
                       onClick={() => setShowChatModal(true)}
                     >
                       View All Messages
@@ -762,7 +762,7 @@ const EnrollerDashboard = () => {
                     )}
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" className="w-full mt-4 border-teal-500 text-teal-600 hover:bg-teal-50">
+                        <Button variant="outline" className="w-full mt-4 border-teal-500 text-teal-600 hover:bg-teal-700">
                           <PlusCircle className="h-4 w-4 mr-2" />
                           Add Program
                         </Button>
@@ -809,7 +809,7 @@ const EnrollerDashboard = () => {
                             <Button
                               variant="link"
                               size="sm"
-                              className="text-teal-600 p-0"
+                              className="text-teal-600 p-0 hover:bg-teal-700"
                               onClick={() => navigate('/faculties')}
                             >
                               + Add new faculty
@@ -840,7 +840,7 @@ const EnrollerDashboard = () => {
                             <Button
                               variant="link"
                               size="sm"
-                              className="text-teal-600 p-0"
+                              className="text-teal-600 p-0 hover:bg-teal-700"
                               onClick={() => navigate('/departments')}
                             >
                               + Add new department
@@ -929,7 +929,7 @@ const EnrollerDashboard = () => {
                     )}
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" className="w-full mt-4 border-teal-500 text-teal-600 hover:bg-teal-50">
+                        <Button variant="outline" className="w-full mt-4 border-teal-500 text-teal-600 hover:bg-teal-700">
                           <PlusCircle className="h-4 w-4 mr-2" />
                           Add Deadline
                         </Button>
@@ -1019,7 +1019,7 @@ const EnrollerDashboard = () => {
                   <CardContent>
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" className="w-full border-teal-500 text-teal-600 hover:bg-teal-50">
+                        <Button variant="outline" className="w-full border-teal-500 text-teal-600 hover:bg-teal-700">
                           <FolderPlus className="h-4 w-4 mr-2" />
                           Add Faculty
                         </Button>
@@ -1073,7 +1073,7 @@ const EnrollerDashboard = () => {
               <h3 className="font-bold">Student Messages</h3>
               <button
                 onClick={() => setShowChatModal(false)}
-                className="p-1 rounded-full hover:bg-teal-700"
+                className="p-10 rounded-full hover:bg-teal-700"
               >
                 ×
               </button>

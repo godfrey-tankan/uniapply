@@ -15,12 +15,12 @@ export const Sidebar = ({ institutionName, sidebarOpen, setSidebarOpen }) => {
     const navigate = useNavigate();
 
     return (
-        <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gray-50 text-black transition-all duration-300 ease-in-out flex flex-col h-full`}>
+        <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gray-50 text-black transition-all duration-300 ease-in-out flex flex-col h-9/10 border-r border-teal-50`}>
             <div className="p-4 flex flex-col h-full">
                 <div className="flex items-center gap-2 mb-8">
                     <button
                         onClick={() => setSidebarOpen(!sidebarOpen)}
-                        className="p-2 rounded-md hover:bg-teal-600 hover:text-white"
+                        className="p-2 rounded-md hover:bg-teal-600 hover:text-teal-700"
                     >
                         {sidebarOpen ? <ChevronLeft /> : <ChevronRight />}
                     </button>
@@ -35,7 +35,7 @@ export const Sidebar = ({ institutionName, sidebarOpen, setSidebarOpen }) => {
                 <nav className="flex-1 space-y-2">
                     <Button
                         variant="ghost"
-                        className={`w-full justify-start hover:bg-teal-600 hover:text-white ${sidebarOpen ? '' : 'justify-center'}`}
+                        className={`w-full justify-start hover:bg-teal-600 hover:text-teal-700 ${sidebarOpen ? '' : 'justify-center'}`}
                         onClick={() => navigate('/enroller-dashboard')}
                     >
                         <Home className="h-4 w-4 mr-2" />
@@ -44,7 +44,7 @@ export const Sidebar = ({ institutionName, sidebarOpen, setSidebarOpen }) => {
 
                     <Button
                         variant="ghost"
-                        className={`w-full justify-start hover:bg-teal-600 hover:text-white ${sidebarOpen ? '' : 'justify-center'}`}
+                        className={`w-full justify-start hover:bg-teal-600 hover:text-teal-700 ${sidebarOpen ? '' : 'justify-center'}`}
                         onClick={() => navigate('/institution-applications')}
                     >
                         <Users className="h-4 w-4 mr-2" />
@@ -53,7 +53,7 @@ export const Sidebar = ({ institutionName, sidebarOpen, setSidebarOpen }) => {
 
                     <Button
                         variant="ghost"
-                        className={`w-full justify-start hover:bg-teal-600 hover:text-white ${sidebarOpen ? '' : 'justify-center'}`}
+                        className={`w-full justify-start hover:bg-teal-600 hover:text-teal-700 ${sidebarOpen ? '' : 'justify-center'}`}
                         onClick={() => navigate('/enroller-messages')}
                     >
                         <MessageSquare className="h-4 w-4 mr-2" />
@@ -62,7 +62,7 @@ export const Sidebar = ({ institutionName, sidebarOpen, setSidebarOpen }) => {
 
                     <Button
                         variant="ghost"
-                        className={`w-full justify-start hover:bg-teal-600 hover:text-white ${sidebarOpen ? '' : 'justify-center'}`}
+                        className={`w-full justify-start hover:bg-teal-600 hover:text-teal-700 ${sidebarOpen ? '' : 'justify-center'}`}
                         onClick={() => navigate('/programs')}
                     >
                         <BookOpen className="h-4 w-4 mr-2" />
@@ -71,7 +71,7 @@ export const Sidebar = ({ institutionName, sidebarOpen, setSidebarOpen }) => {
 
                     <Button
                         variant="ghost"
-                        className={`w-full justify-start hover:bg-teal-600 hover:text-white ${sidebarOpen ? '' : 'justify-center'}`}
+                        className={`w-full justify-start hover:bg-teal-600 hover:text-teal-700 ${sidebarOpen ? '' : 'justify-center'}`}
                         onClick={() => navigate('/departments')}
                     >
                         <FolderPlus className="h-4 w-4 mr-2" />
@@ -80,7 +80,7 @@ export const Sidebar = ({ institutionName, sidebarOpen, setSidebarOpen }) => {
 
                     <Button
                         variant="ghost"
-                        className={`w-full justify-start hover:bg-teal-600 hover:text-white ${sidebarOpen ? '' : 'justify-center'}`}
+                        className={`w-full justify-start hover:bg-teal-600 hover:text-teal-700 ${sidebarOpen ? '' : 'justify-center'}`}
                         onClick={() => navigate('/faculties')}
                     >
                         <FolderPlus className="h-4 w-4 mr-2" />
@@ -89,7 +89,7 @@ export const Sidebar = ({ institutionName, sidebarOpen, setSidebarOpen }) => {
 
                     <Button
                         variant="ghost"
-                        className={`w-full justify-start hover:bg-teal-600 hover:text-white ${sidebarOpen ? '' : 'justify-center'}`}
+                        className={`w-full justify-start hover:bg-teal-600 hover:text-teal-700 ${sidebarOpen ? '' : 'justify-center'}`}
                         onClick={() => navigate('/deadlines')}
                     >
                         <CalendarDays className="h-4 w-4 mr-2" />
@@ -100,7 +100,7 @@ export const Sidebar = ({ institutionName, sidebarOpen, setSidebarOpen }) => {
                 <div className="mt-auto pt-4 border-t border-teal-600">
                     <Button
                         variant="ghost"
-                        className={`w-full justify-start hover:bg-teal-600 hover:text-white ${sidebarOpen ? '' : 'justify-center'}`}
+                        className={`w-full justify-start hover:bg-teal-600 hover:text-teal-700 ${sidebarOpen ? '' : 'justify-center'}`}
                         onClick={() => navigate('/enroller-settings')}
                     >
                         <Settings className="h-4 w-4 mr-2" />

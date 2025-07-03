@@ -13,7 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(4, "Password must be at least 6 characters"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -63,10 +63,10 @@ const LoginForm = () => {
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <FormControl>
-                  <Input 
-                    placeholder="you@example.com" 
-                    className="pl-10" 
-                    {...field} 
+                  <Input
+                    placeholder="you@example.com"
+                    className="pl-10"
+                    {...field}
                   />
                 </FormControl>
               </div>
@@ -104,9 +104,9 @@ const LoginForm = () => {
           )}
         />
 
-        <Button 
-          type="submit" 
-          className="w-full bg-teal hover:bg-teal-dark" 
+        <Button
+          type="submit"
+          className="w-full bg-teal hover:bg-teal-dark"
           disabled={isLoading}
         >
           {isLoading ? "Logging in..." : "Log In"}
