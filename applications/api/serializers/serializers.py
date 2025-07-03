@@ -12,7 +12,7 @@ class InstitutionBasicSerializer(serializers.ModelSerializer):
 class ProgramBasicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
-        fields = ['id', 'name', 'code', 'description']
+        fields = ['id', 'name', 'code', 'description','min_points_required', 'department']
 class DepartmentBasicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department

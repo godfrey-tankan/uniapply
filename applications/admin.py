@@ -1,6 +1,6 @@
 from django.contrib import admin
 from applications.models.models import Application, ApplicationDocument
-from .models.models import ActivityLog, Deadline
+from .models.models import ActivityLog, Deadline,Message
 
 @admin.register(ActivityLog)
 class ActivityLogAdmin(admin.ModelAdmin):
@@ -50,4 +50,16 @@ class ApplicationDocumentAdmin(admin.ModelAdmin):
         (None, {'fields': ('id', 'application', 'file', 'uploaded_at')}),
     )
     ordering = ['uploaded_at']
+    list_per_page = 20
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ['id', 'sender', 'recipient', 'timestamp']
+    search_fields = ['sender__username', 'recipient__username']
+    list_filter = ['timestamp']
+    readonly_fields = ['id', 'timestamp']
+    fieldsets = (
+        (None, {'fields': ('id', 'sender', 'recipient', 'body', 'timestamp')}),
+    )
+    ordering = ['timestamp']
     list_per_page = 20

@@ -38,7 +38,7 @@ const ApplicationReviewPage = () => {
     const [requestedDocuments, setRequestedDocuments] = useState('');
     const [programAlternatives, setProgramAlternatives] = useState([]);
     const [suitabilityScore, setSuitabilityScore] = useState(0);
-
+    console.log('ApplicationReviewPage loaded with ID:', suitabilityScore);
     useEffect(() => {
         if (!user || (!user.is_enroller && !user.is_system_admin)) {
             navigate('/dashboard');
@@ -59,12 +59,6 @@ const ApplicationReviewPage = () => {
                 setNotes(appResponse.data.admin_notes || '');
 
                 // Fetch chat messages
-                const messagesResponse = await axios.get(`/api/applications/${id}/messages/`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                setMessages(messagesResponse.data);
-
-                // Calculate suitability score
                 if (appResponse.data.student?.a_level_points && appResponse.data.program?.min_points_required) {
                     const score = calculateSuitabilityScore(
                         appResponse.data.student.a_level_points,
@@ -72,6 +66,8 @@ const ApplicationReviewPage = () => {
                     );
                     setSuitabilityScore(score);
                 }
+                fetchMessages();
+                // Calculate suitability score
 
                 // Fetch program alternatives
                 if (appResponse.data.program?.id) {
@@ -93,6 +89,8 @@ const ApplicationReviewPage = () => {
     }, [id, user, navigate]);
 
     const calculateSuitabilityScore = (studentPoints, programMinPoints) => {
+        console.log('Calculating suitability score...', studentPoints, programMinPoints);
+
         if (!studentPoints || !programMinPoints) return 50;
 
         const pointsDifference = studentPoints - programMinPoints;
@@ -152,14 +150,29 @@ const ApplicationReviewPage = () => {
         }
     };
 
+    const fetchMessages = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await axios.get(`/api/messages/by_application/?application_id=${id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            setMessages(response.data);
+        } catch (err) {
+            console.error('Error fetching messages:', err);
+        }
+    };
+
     const handleSendMessage = async () => {
         if (!newMessage.trim()) return;
 
         try {
             const token = localStorage.getItem('authToken');
             const response = await axios.post(
-                `/api/applications/${id}/messages/`,
-                { content: newMessage },
+                '/api/messages/',
+                {
+                    application_id: id,
+                    text: newMessage
+                },
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 
@@ -434,7 +447,7 @@ const ApplicationReviewPage = () => {
                                                     <div
                                                         className={`max-w-xs p-3 rounded-lg ${message.sender.id === user.id ? 'bg-teal-100' : 'bg-gray-100'}`}
                                                     >
-                                                        <p className="text-sm">{message.content}</p>
+                                                        <p className="text-sm">{message.text}</p>
                                                         <p className="text-xs text-gray-500 mt-1">
                                                             {new Date(message.timestamp).toLocaleString()}
                                                         </p>
@@ -519,7 +532,7 @@ const ApplicationReviewPage = () => {
                                 <Button
                                     onClick={handleStatusChange}
                                     disabled={saving || status === application.status}
-                                    className="w-full"
+                                    className="w-full bg-teal-500 hover:bg-teal-700"
                                 >
                                     {saving ? (
                                         <>
