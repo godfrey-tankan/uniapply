@@ -3,19 +3,23 @@ from rest_framework.response import Response
 
 from rest_framework import viewsets, filters, status, permissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from applications.models.models import Application, ApplicationDocument, Deadline, ActivityLog
+from applications.models.models import Application, ApplicationDocument, Deadline, ActivityLog, Message
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers.serializers import ApplicationSerializer, ApplicationStatusSerializer, ActivityLogSerializer
+from .serializers.serializers import ApplicationSerializer, ApplicationStatusSerializer, ActivityLogSerializer, DocumentRequestSerializer, MessageSerializer,ProgramAlternativeSerializer
 from ..services.permissions import IsStudentOwnerOrAdmin, IsAdminForStatusChange
 from django.contrib.auth import get_user_model
 from django.db.models import Count, F, Q, Avg
 from datetime import datetime, timedelta
 from institutions.models import Institution, Program, Department
-
-
-
+from applications.services.emails import (
+    send_document_request_email,
+    send_program_alternative_email,
+    send_status_email
+)
+from applications.services.notifications import send_notification
+from django.http import Http404
 import time  
 User = get_user_model()
 
@@ -104,6 +108,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         # Additional filtering for admins
         if self.request.user.is_staff and 'student_id' in self.request.query_params:
             queryset = queryset.filter(student_id=self.request.query_params['student_id'])
+        print(f"Queryset filtered for user {self.request.user.username}: {queryset}")
             
         return queryset
 
@@ -187,6 +192,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         super().perform_destroy(instance)
 
     def _change_status(self, request, pk, new_status):
+        print(f"Received status change request: {request.data}")
         application = self.get_object()
         old_status = application.status
         serializer = self.get_serializer(application, data=request.data, partial=True)
@@ -214,24 +220,40 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         })
 
     @action(detail=True, methods=['post'], serializer_class=ApplicationStatusSerializer)
-    def approve(self, request, pk=None):
+    def approved(self, request, pk=None):
         """Approve an application"""
-        return self._change_status(request, pk, 'Approved')
+        response = self._change_status(request, pk, 'Approved')
+        if response.status_code == 200:
+            application = self.get_object()
+            send_application_email(application, request, 'status_change')
+        return response
 
     @action(detail=True, methods=['post'], serializer_class=ApplicationStatusSerializer)
-    def reject(self, request, pk=None):
+    def rejected(self, request, pk=None):
         """Reject an application"""
-        return self._change_status(request, pk, 'Rejected')
+        response = self._change_status(request, pk, 'Rejected')
+        if response.status_code == 200:
+            application = self.get_object()
+            send_application_email(application, request, 'status_change')
+        return response
 
     @action(detail=True, methods=['post'], serializer_class=ApplicationStatusSerializer)
-    def defer(self, request, pk=None):
+    def deferred(self, request, pk=None):
         """Defer an application"""
-        return self._change_status(request, pk, 'Deferred')
+        response = self._change_status(request, pk, 'Deferred')
+        if response.status_code == 200:
+            application = self.get_object()
+            send_application_email(application, request, 'status_change')
+        return response
 
     @action(detail=True, methods=['post'], serializer_class=ApplicationStatusSerializer)
-    def waitlist(self, request, pk=None):
+    def waitlisted(self, request, pk=None):
         """Waitlist an application"""
-        return self._change_status(request, pk, 'Waitlisted')
+        response = self._change_status(request, pk, 'Waitlisted')
+        if response.status_code == 200:
+            application = self.get_object()
+            send_application_email(application, request, 'status_change')
+        return response
 
     @action(detail=False, methods=['get'])
     def my_applications(self, request):
@@ -385,13 +407,15 @@ class EnrollmentViewSet(viewsets.ViewSet):
             #     })
 
             # Placeholder for upcoming_deadlines if you don't have a concrete implementation yet
+            deadlines = Deadline.objects.filter(
+                institution=user.institution
+            )
             upcoming_deadlines_data = [
                 {'title': 'General Application Period Closes', 'date': (today + timedelta(days=30)).isoformat(), 'semester': 'Fall'},
                 {'title': 'Early Bird Deadline', 'date': (today + timedelta(days=60)).isoformat(), 'semester': 'Spring'}
             ]
 
 
-            # --- Metrics Chart ---
             # This is where you would generate your chart. For now, it's a placeholder.
             metrics_chart_base64 = "" # This would come from your chart generation logic (e.g., matplotlib)
             metrics_summary = "Application metrics for the assigned institution."
@@ -400,7 +424,7 @@ class EnrollmentViewSet(viewsets.ViewSet):
 
 
             return Response({
-                'institution_name': institution_name, # Pass institution name to frontend
+                'institution_name': institution_name, 
                 'stats': {
                     'total_applications': total_applications,
                     'pending_review': pending_review,
@@ -408,7 +432,7 @@ class EnrollmentViewSet(viewsets.ViewSet):
                     'rejected': rejected,
                 },
                 'pending_applications': pending_applications_data,
-                'upcoming_deadlines': upcoming_deadlines_data, # Use the generated data
+                'upcoming_deadlines': deadlines,
                 'metrics_chart': metrics_chart_base64, # Placeholder for your chart
                 'metrics_summary': metrics_summary,
                 'last_updated': datetime.now().isoformat()
@@ -428,9 +452,6 @@ class EnrollmentViewSet(viewsets.ViewSet):
         authentication_classes=[]
     )
     def stats(self, request):
-        # Your existing stats logic (could be adapted for institution-specific stats if needed)
-        # For now, keeping it as is, assuming it's more general or system-wide stats
-        # If this endpoint is also for enrollers, you'd apply institution_filter here too.
         today = datetime.now().date()
         current_year_start = datetime(today.year, 1, 1).date()
         last_year_start = datetime(today.year - 1, 1, 1).date()
@@ -531,3 +552,271 @@ class EnrollmentViewSet(viewsets.ViewSet):
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            
+class EnrollerActionsViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=['post'])
+    def request_documents(self, request, pk=None):
+        """
+        Endpoint for enrollers to request additional documents from students
+        """
+        application = self.get_application(pk)
+        serializer = DocumentRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            # Save the document request to application
+            application.admin_notes = (
+                f"DOCUMENT REQUESTED: {serializer.validated_data['documents_requested']}\n"
+                f"{application.admin_notes or ''}"
+            )
+            application.save()
+
+            # Log activity
+            self._log_activity(
+                user=request.user,
+                application=application,
+                action='DOCUMENT_REQUEST',
+                description=f"Requested documents: {serializer.validated_data['documents_requested']}"
+            )
+
+            # Send email notification to student
+            send_document_request_email(
+                application=application,
+                documents_requested=serializer.validated_data['documents_requested'],
+                request=request
+            )
+
+            # Create notification for student
+            send_notification(
+                user=application.student,
+                title="Document Request",
+                message=f"{request.user.name} requested additional documents for your application",
+                notification_type="DOCUMENT_REQUEST"
+            )
+
+            return Response({"status": "Document request sent to student"}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=True, methods=['post'])
+    def offer_alternative(self, request, pk=None):
+        """
+        Endpoint for enrollers to offer alternative programs to students
+        """
+        application = self.get_application(pk)
+        serializer = ProgramAlternativeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            alternative_program = Program.objects.get(id=serializer.validated_data['program_id'])
+
+            # Save the alternative offer to application notes
+            application.admin_notes = (
+                f"ALTERNATIVE PROGRAM OFFERED: {alternative_program.name}\n"
+                f"{application.admin_notes or ''}"
+            )
+            application.save()
+
+            # Log activity
+            self._log_activity(
+                user=request.user,
+                application=application,
+                action='ALTERNATIVE_OFFER',
+                description=f"Offered alternative program: {alternative_program.name}"
+            )
+
+            # Send email notification to student
+            send_program_alternative_email(
+                application=application,
+                alternative_program=alternative_program,
+                request=request
+            )
+
+            # Create notification for student
+            send_notification(
+                user=application.student,
+                title="Alternative Program Offered",
+                message=f"{request.user.name} offered you an alternative program: {alternative_program.name}",
+                notification_type="PROGRAM_ALTERNATIVE"
+            )
+
+            return Response(
+                {"status": f"Alternative program {alternative_program.name} offered to student"},
+                status=status.HTTP_200_OK
+            )
+
+        except Program.DoesNotExist:
+            return Response(
+                {"error": "Program not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=True, methods=['get'])
+    def recommendations(self, request, pk=None):
+        """
+        Get program recommendations for this application
+        """
+        application = self.get_application(pk)
+        
+        try:
+            # Get student's A-Level points or default to 0
+            student_points = application.student.a_level_points or 0
+            
+            # Get current program stats
+            current_program = application.program
+            current_stats = self._calculate_program_stats(current_program, student_points)
+
+            # Get alternative programs in the same faculty
+            alternatives = Program.objects.filter(
+                department__faculty=current_program.department.faculty
+            ).exclude(id=current_program.id)
+
+            # Calculate stats for alternatives
+            alternative_stats = []
+            for program in alternatives:
+                stats = self._calculate_program_stats(program, student_points)
+                alternative_stats.append(stats)
+
+            # Sort by acceptance probability (highest first)
+            alternative_stats.sort(key=lambda x: x['acceptance_probability'], reverse=True)
+
+            return Response({
+                'current_program': current_stats,
+                'alternatives': alternative_stats[:5]  # Return top 5 alternatives
+            })
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=True, methods=['get'])
+    def messages(self, request, pk=None):
+        """
+        Get all messages for this application
+        """
+        application = self.get_application(pk)
+        
+        try:
+            messages = Message.objects.filter(
+                Q(sender=request.user, recipient=application.student) |
+                Q(sender=application.student, recipient=request.user)
+            ).order_by('-timestamp')
+
+            serializer = MessageSerializer(messages, many=True)
+            return Response(serializer.data)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=True, methods=['post'])
+    def send_message(self, request, pk=None):
+        """
+        Send a message to the student about this application
+        """
+        application = self.get_application(pk)
+        serializer = MessageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            message = serializer.save(
+                sender=request.user,
+                recipient=application.student,
+                text=serializer.validated_data['text']
+            )
+
+            # Log activity
+            self._log_activity(
+                user=request.user,
+                application=application,
+                action='MESSAGE',
+                description=f"Sent message to student"
+            )
+
+            # Create notification for student
+            send_notification(
+                user=application.student,
+                title="New Message",
+                message=f"{request.user.name} sent you a message about your application",
+                notification_type="MESSAGE"
+            )
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def _calculate_program_stats(self, program, student_points):
+        """
+        Calculate statistics and suitability for a program
+        """
+        applications = program.applications.exclude(student__a_level_points__isnull=True)
+        total_applicants = applications.count()
+
+        # Calculate acceptance probability
+        if total_applicants == 0:
+            acceptance_prob = 0.7 if student_points >= program.min_points_required else 0.3
+        else:
+            if student_points > program.min_points_required:
+                acceptance_prob = 0.8 - (0.3 * (applications.filter(student__a_level_points__gt=student_points).count() / total_applicants))
+            elif student_points == program.min_points_required:
+                acceptance_prob = 0.5
+            else:
+                acceptance_prob = 0.3 * (1 - (applications.filter(student__a_level_points__gt=student_points).count() / total_applicants))
+            
+            acceptance_prob = max(0.1, min(0.9, acceptance_prob))
+
+        return {
+            'program_id': program.id,
+            'program_name': program.name,
+            'program_code': program.code,
+            'institution': program.department.faculty.institution.name,
+            'min_points_required': program.min_points_required,
+            'student_points': student_points,
+            'acceptance_probability': round(acceptance_prob, 2),
+            'required_subjects': program.requirements
+        }
+
+    def _log_activity(self, user, application, action, description):
+        """Helper method to log activities"""
+        ActivityLog.objects.create(
+            user=user,
+            action=action,
+            description=description,
+            metadata={
+                'application_id': application.id,
+                'program': application.program.name,
+                'student': application.student.username
+            }
+        )
+
+    def get_application(self, pk):
+        """Helper method to get and validate application"""
+        try:
+            application = Application.objects.get(pk=pk)
+            # Verify enroller has access to this application
+            if not (self.request.user.is_system_admin or 
+                    (self.request.user.is_enroller and 
+                    self.request.user.assigned_institution == application.program.department.faculty.institution)):
+                raise PermissionError("You don't have permission to access this application")
+            return application
+        except Application.DoesNotExist:
+            raise Http404("Application not found")

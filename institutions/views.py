@@ -1,4 +1,4 @@
-# views.py
+# institutions app views.py
 from rest_framework import viewsets, permissions
 from .models import Institution, Faculty, Department, Program
 from .serializers import (
@@ -9,11 +9,12 @@ from .serializers import (
     ProgramRequirementsSerializer,
     ProgramSectionSerializer,
     PublicProgramSerializer,
-    InstitutionMinimalSerializer
+    InstitutionMinimalSerializer,
+    ProgramCreateSerializer,
+    FacultyCreateSerializer
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 from applications.models.models import Application
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django_filters.rest_framework import DjangoFilterBackend
@@ -24,9 +25,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 import random
+from rest_framework import viewsets, status
 
 User = get_user_model()
-
 
 class InstitutionsViewSet(viewsets.ModelViewSet):
     queryset = Institution.objects.all()
@@ -45,8 +46,14 @@ class InstitutionViewSet(viewsets.ModelViewSet):
 
 class FacultyViewSet(viewsets.ModelViewSet):
     queryset = Faculty.objects.all()
-    serializer_class = FacultySerializer
 
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return FacultyCreateSerializer
+        return FacultySerializer
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()

@@ -74,7 +74,7 @@ ROOT_URLCONF = 'university_platform.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # Add your templates directory here
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -154,6 +154,17 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Email settings
+SERVER_EMAIL = "info@uniapply.com"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "godfreytantswakandeya@gmail.com"
+EMAIL_HOST_PASSWORD = "houb kgzh hpiz jsgr"
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = "info@uniapply.com"
+
 
 
 # Internationalization

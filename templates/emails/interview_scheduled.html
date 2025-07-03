@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #6366f1; color: white; padding: 25px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 25px; background-color: #f9f9f9; border-radius: 0 0 8px 8px; border: 1px solid #e1e1e1; }
+        .interview-details { background-color: #e0e7ff; padding: 15px; border-radius: 6px; margin: 15px 0; }
+        .prep-tips { margin: 20px 0; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }
+        .footer { margin-top: 25px; font-size: 12px; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Interview Scheduled</h1>
+    </div>
+    <div class="content">
+        <p>Dear {{ user.first_name|default:user.username }},</p>
+        
+        <p>As part of the admissions process for <strong>{{ application.program.name }}</strong>, we'd like to invite you for an interview.</p>
+        
+        <div class="interview-details">
+            <h3>Interview Details:</h3>
+            <p><strong>Date:</strong> {{ interview.date|date:"l, F j, Y" }}</p>
+            <p><strong>Time:</strong> {{ interview.date|time:"g:i A" }} ({{ interview.timezone }})</p>
+            <p><strong>Format:</strong> {{ interview.format }} ({{ interview.location|default:"Online" }})</p>
+            <p><strong>Interviewer:</strong> {{ interview.interviewer_name }}</p>
+        </div>
+        
+        <div class="prep-tips">
+            <h3>Preparation Tips:</h3>
+            <ul>
+                <li>Review your application materials</li>
+                <li>Prepare questions about the program</li>
+                <li>Test your technology if interviewing online</li>
+                <li>Dress professionally</li>
+            </ul>
+        </div>
+        
+        <a href="{{ interview_link }}" class="button">View Interview Details</a>
+        
+        <p>If you need to reschedule or have any questions, please contact us immediately.</p>
+        
+        <div class="footer">
+            <p>© {% now "Y" %} {{ institution.name }}. All rights reserved.</p>
+            <p>Admissions Office | admissions@{{ institution.domain|default:"university.edu" }}</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #ec4899; color: white; padding: 25px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 25px; background-color: #f9f9f9; border-radius: 0 0 8px 8px; border: 1px solid #e1e1e1; }
+        .schedule { background-color: #fce7f3; padding: 15px; border-radius: 6px; margin: 15px 0; }
+        .agenda-item { margin-bottom: 10px; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #ec4899; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }
+        .footer { margin-top: 25px; font-size: 12px; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>New Student Orientation</h1>
+        <p>Getting ready for your journey at {{ institution.name }}</p>
+    </div>
+    <div class="content">
+        <p>Dear {{ user.first_name|default:user.username }},</p>
+        
+        <p>We're excited to welcome you to {{ institution.name }}! Your orientation program has been scheduled for:</p>
+        
+        <div class="schedule">
+            <h3>Orientation Schedule</h3>
+            <p><strong>Date:</strong> {{ orientation.date|date:"l, F j, Y" }}</p>
+            <p><strong>Time:</strong> {{ orientation.start_time|time:"g:i A" }} - {{ orientation.end_time|time:"g:i A" }}</p>
+            <p><strong>Location:</strong> {{ orientation.location }}</p>
+            
+            <h4>Agenda Highlights:</h4>
+            {% for item in orientation.agenda %}
+            <div class="agenda-item">
+                <strong>{{ item.time }}</strong>: {{ item.activity }}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <p>Orientation is mandatory for all new students. You'll meet your academic advisors, learn about campus resources, and connect with fellow students.</p>
+        
+        <a href="{{ orientation_portal_link }}" class="button">Confirm Your Attendance</a>
+        
+        <p>We look forward to seeing you on campus!</p>
+        
+        <div class="footer">
+            <p>© {% now "Y" %} {{ institution.name }}. All rights reserved.</p>
+            <p>Student Affairs Office | studentaffairs@{{ institution.domain|default:"university.edu" }}</p>
+        </div>
+    </div>
+</body>
+</html>

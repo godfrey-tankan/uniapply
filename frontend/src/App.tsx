@@ -20,6 +20,7 @@ import ProfileCompletionPage from "./pages/ProfileCompletionPage";
 import ApplicationReviewPage from '@/pages/ApplicationReviewPage';
 import ProgramsPage from './pages/ProgramsPage';
 import EnrollerSettingsPage from './pages/EnrollerSettingsPage';
+import Applications from './pages/Applications';
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
 
             <Route element={<ProtectedRoute allowedRoles={["is_enroller"]} />}>
               <Route path="/review-application/:id" element={<ApplicationReviewPage />} />
+              <Route path="/institution-applications" element={<Applications />} />
               <Route path="/enroller-dashboard" element={<EnrollerDashboard />} />
               <Route path="/enroller-settings" element={<EnrollerSettingsPage />} />
             </Route>

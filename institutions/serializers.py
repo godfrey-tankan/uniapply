@@ -115,6 +115,24 @@ class FacultySerializer(serializers.ModelSerializer):
         model = Faculty
         fields = '__all__'
 
+class FacultyCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Faculty
+        fields = ['id', 'name', 'code', 'description', 'institution']
+
+    def validate_institution(self, value):
+        user = self.context['request'].user
+        if user.is_enroller and user.assigned_institution:
+            if value != user.assigned_institution:
+                raise serializers.ValidationError(
+                    "You can only create faculties for your assigned institution"
+                )
+        return value
+
+    def create(self, validated_data):
+        validated_data['created_by'] = self.context['request'].user
+        return super().create(validated_data)
+
 
 class InstitutionSerializer(serializers.ModelSerializer):
     permission_classes = [IsAuthenticated]
@@ -151,3 +169,29 @@ class ProgramSerializerDetails(serializers.ModelSerializer):
 
     def get_requirements(self, obj):
         return obj.required_subjects.split(',')
+    
+class ProgramCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = [
+            'id',
+            'name',
+            'code',
+            'description',
+            'duration',
+            'requirements',
+            'department'
+        ]
+
+    def validate_department(self, value):
+        user = self.context['request'].user
+        if user.is_enroller and user.assigned_institution:
+            if value.faculty.institution != user.assigned_institution:
+                raise serializers.ValidationError(
+                    "You can only create programs for your assigned institution"
+                )
+        return value
+
+    def create(self, validated_data):
+        validated_data['created_by'] = self.context['request'].user
+        return super().create(validated_data)

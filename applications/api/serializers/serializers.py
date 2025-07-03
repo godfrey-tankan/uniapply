@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from applications.models.models import Application, ApplicationDocument, ActivityLog, Deadline
+from applications.models.models import Application, ApplicationDocument, ActivityLog, Deadline, Message
 from institutions.models import Institution, Program, Department
 from django.contrib.auth import get_user_model 
 User = get_user_model()
@@ -130,7 +130,43 @@ class ActivityLogSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 class DeadlineSerializer(serializers.ModelSerializer):
+    institution = serializers.PrimaryKeyRelatedField(
+        queryset=Institution.objects.all(),
+        required=False
+    )
+    
     class Meta:
         model = Deadline
-        fields = ['id', 'title', 'description', 'date', 'semester', 'is_active']
+        fields = [
+            'id',
+            'title',
+            'description',
+            'date',
+            'semester',
+            'is_active',
+            'institution'
+        ]
+        read_only_fields = ['institution']
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['id', 'sender', 'recipient', 'text', 'timestamp', 'is_read']
+        read_only_fields = ['sender', 'recipient', 'timestamp', 'is_read']
 
+class DocumentRequestSerializer(serializers.Serializer):
+    documents_requested = serializers.CharField(
+        max_length=500,
+        required=True,
+        help_text="List of documents being requested from the student"
+    )
+
+class ProgramAlternativeSerializer(serializers.Serializer):
+    program_id = serializers.IntegerField(
+        required=True,
+        help_text="ID of the alternative program being offered"
+    )
+
+    def validate_program_id(self, value):
+        if not Program.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Program does not exist")
+        return value

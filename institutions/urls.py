@@ -1,14 +1,28 @@
 # urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import InstitutionsViewSet,InstitutionViewSet, FacultyViewSet, DepartmentViewSet, ProgramViewSet, InstitutionProgramsView, ProgramDetailsViewSet,public_programs, InstitutionNameProgramsView
+from .views import (
+    InstitutionsViewSet,
+    InstitutionViewSet, 
+    FacultyViewSet, 
+    DepartmentViewSet, 
+    ProgramViewSet, 
+    InstitutionProgramsView, 
+    ProgramDetailsViewSet,
+    public_programs, 
+    InstitutionNameProgramsView
+)
+from institutions.api.views.programs import ProgramCreateViewSet
+from institutions.api.views.departments import DepartmentCreateViewSet
 
 router = DefaultRouter()
 router.register(r'institutions', InstitutionsViewSet, basename='institutions')
 router.register(r'institution', InstitutionViewSet, basename='institution')
 router.register(r'faculties', FacultyViewSet, basename='faculties')
 router.register(r'departments', DepartmentViewSet, basename='departments')
+router.register(r'create-departments', DepartmentCreateViewSet, basename='create-departments')
 router.register(r'programs', ProgramViewSet, basename='programs')
+router.register(r'create-programs', ProgramCreateViewSet, basename='create-programs')
 router.register(r'program-details', ProgramDetailsViewSet, basename='program-details')
 
 urlpatterns = [
@@ -17,6 +31,6 @@ urlpatterns = [
     path('programs/recommendations/',  ProgramViewSet.as_view({'get': 'recommendations'}),name='program-recommendations'),
     path('all-program-details/', public_programs, name='all-program-details'),
     path('public/program-details/<int:pk>/', 
-         ProgramDetailsViewSet.as_view({'get': 'retrieve'}), 
-         name='public-program-details'),
+        ProgramDetailsViewSet.as_view({'get': 'retrieve'}), 
+        name='public-program-details'),
 ] + router.urls

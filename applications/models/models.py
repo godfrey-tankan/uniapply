@@ -82,17 +82,18 @@ class Application(models.Model):
     def clean(self):
         """Validate the application before saving"""
         # Ensure student is actually a student
-        if not self.student.is_student:
-            raise ValidationError("Only students can submit applications")
+        # if not self.student.is_student or :
+        #     raise ValidationError("Only students can submit applications")
         
         # Validate status transitions
         if self.pk: 
             original = Application.objects.get(pk=self.pk)
             if original.status != self.status:
                 if self.status not in self.STATUS_TRANSITIONS.get(original.status, []):
-                    raise ValidationError(
-                        f"Invalid status transition from {original.status} to {self.status}"
-                    )
+                    ...
+                    # raise ValidationError(
+                    #     f"Invalid status transition from {original.status} to {self.status}"
+                    # )
 
     def save(self, *args, **kwargs):
         """Override save to handle status change dates"""
@@ -221,6 +222,13 @@ class Deadline(models.Model):
 
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    institution = models.ForeignKey(
+        'institutions.Institution',
+        on_delete=models.CASCADE,
+        related_name='deadlines',
+        null=True,
+        blank=True
+    )
     date = models.DateField()
     semester = models.CharField(max_length=10, choices=SEMESTER_CHOICES)
     is_active = models.BooleanField(default=True)
@@ -234,3 +242,53 @@ class Deadline(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.date}"
+
+class Message(models.Model):
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='messages_sent'
+    )
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='messages_received'
+    )
+    text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    is_system = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.sender} to {self.recipient} at {self.timestamp}"
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('MESSAGE', 'Message'),
+        ('STATUS_CHANGE', 'Application Status Change'),
+        ('PROGRAM_ADDED', 'New Program Added'),
+        ('DEADLINE', 'Deadline'),
+        ('INTERVIEW', 'Interview Scheduled'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def mark_as_read(self):
+        self.is_read = True
+        self.read_at = timezone.now()
+        self.save()
+
+    def __str__(self):
+        return f"{self.title} - {self.user}"

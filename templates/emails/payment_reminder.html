@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #3b82f6; color: white; padding: 25px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 25px; background-color: #f9f9f9; border-radius: 0 0 8px 8px; border: 1px solid #e1e1e1; }
+        .payment-due { background-color: #dbeafe; padding: 15px; border-radius: 6px; margin: 15px 0; text-align: center; }
+        .payment-options { margin: 20px 0; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }
+        .footer { margin-top: 25px; font-size: 12px; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Tuition Payment Reminder</h1>
+    </div>
+    <div class="content">
+        <p>Dear {{ user.first_name|default:user.username }},</p>
+        
+        <div class="payment-due">
+            <h3>Payment Due: {{ due_date|date:"F j, Y" }}</h3>
+            <p><strong>Amount Due:</strong> {{ amount_due }}</p>
+        </div>
+        
+        <p>This is a reminder that payment for your enrollment in <strong>{{ application.program.name }}</strong> is due soon.</p>
+        
+        <div class="payment-options">
+            <h3>Payment Options:</h3>
+            <ul>
+                <li>Online payment portal (credit/debit card)</li>
+                <li>Bank transfer</li>
+                <li>Payment plan options available</li>
+            </ul>
+        </div>
+        
+        <p>To make your payment now:</p>
+        <a href="{{ payment_portal_link }}" class="button">Pay Now</a>
+        
+        <p>If you've already made this payment, please disregard this notice.</p>
+        
+        <div class="footer">
+            <p>© {% now "Y" %} {{ institution.name }}. All rights reserved.</p>
+            <p>Bursar's Office | bursar@{{ institution.domain|default:"university.edu" }}</p>
+        </div>
+    </div>
+</body>
+</html>
