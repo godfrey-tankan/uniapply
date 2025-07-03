@@ -52,7 +52,7 @@ def notify_students_of_deadline(deadline):
     ).distinct()
     
     for student in students:
-        send_notification.delay(
+        send_notification(
             user=student,
             title="Important Deadline",
             message=f"New deadline for {deadline.title}: {deadline.date}",

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Document Request</title>
+</head>
+<body style="font-family: Arial, sans-serif; color: #333;">
+  <h2>Document Request for Your Application</h2>
+  <p>Dear {{ student_name }},</p>
+
+  <p>
+    {{ enroller_name }} has requested the following additional documents to complete the review of your application:
+  </p>
+
+  <blockquote style="background-color: #f9f9f9; padding: 1em; border-left: 4px solid #4f46e5;">
+    {{ documents_requested }}
+  </blockquote>
+
+  <p>Please log into your portal and upload the required documents as soon as possible.</p>
+
+  <p>Thank you,<br/>University Admissions Team</p>
+</body>
+</html>

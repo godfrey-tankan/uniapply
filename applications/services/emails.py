@@ -140,35 +140,37 @@ def send_deadline_event(request, deadline):
 
 @shared_task
 def send_document_request_email(application, documents_requested, request):
-    subject = f"Document Request for Your Application to {application.program.name}"
-    html_message = render_to_string(
-        'emails/document_request.html',
-        {
-            'student': application.student,
-            'application': application,
-            'documents_requested': documents_requested,
-            'enroller': request.user
-        }
-    )
-    plain_message = strip_tags(html_message)
-    send_mail(
-        subject,
-        plain_message,
-        'noreply@universityportal.com',
-        [application.student.email],
-        html_message=html_message
-    )
+    student = application.student
+    enroller = request.user
 
+    subject = "Document Request for Your Application"
+    from_email = "noreply@university.com"
+    to = [student.email]
+
+    context = {
+        "student_name": student.name,
+        "enroller_name": enroller.name,
+        "documents_requested": documents_requested
+    }
+
+    text_content = f"{enroller.name} has requested the following documents: {documents_requested}"
+    html_content = render_to_string("emails/document_request.html", context)
+
+    email = EmailMultiAlternatives(subject, text_content, from_email, to)
+    email.attach_alternative(html_content, "text/html")
+    email.send()
+    
 @shared_task
 def send_program_alternative_email(application, alternative_program, request):
     subject = f"Alternative Program Offer for Your Application"
     html_message = render_to_string(
-        'emails/program_alternative.html',
+        'emails/alternative_offer.html',
         {
-            'student': application.student,
+            'student_name': application.student.username,
             'application': application,
+            'program_name':application.program.name,
             'alternative_program': alternative_program,
-            'enroller': request.user
+            'enroller_name': request.user.name
         }
     )
     plain_message = strip_tags(html_message)

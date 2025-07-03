@@ -114,16 +114,16 @@ const ApplicationReviewPage = () => {
 
             switch (status) {
                 case 'Approved':
-                    endpoint = 'approve';
+                    endpoint = 'approved';
                     break;
                 case 'Rejected':
-                    endpoint = 'reject';
+                    endpoint = 'rejected';
                     break;
                 case 'Waitlisted':
-                    endpoint = 'waitlist';
+                    endpoint = 'waitlisted';
                     break;
                 case 'Deferred':
-                    endpoint = 'defer';
+                    endpoint = 'defered';
                     break;
                 default:
                     throw new Error('Invalid status selected');

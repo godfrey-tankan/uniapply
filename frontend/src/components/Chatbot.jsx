@@ -45,7 +45,7 @@ const tools = [
             },
             {
                 name: 'getInstitutionPrograms',
-                description: 'Fetches all academic programs offered by a specific institution using its ID. Use this when the user asks what programs a particular university offers and provides an institution ID. Returns a list of program objects with `id`, `name`, `code`, `description`.',
+                description: 'Fetches all academic programs offered by a specific institution using its ID. Use this when the user asks what programs a particular university offers and provides an institution ID. Returns a list of program objects with `id`, `name`, `code`, `description` if user asks about a program which is not offered by the institution, tell them that the program is not yet available at yet.',
                 parameters: {
                     type: 'object',
                     properties: {
@@ -83,7 +83,7 @@ const tools = [
             },
             {
                 name: 'getProgramRecommendations',
-                description: 'Recommends academic programs based on the user\'s profile data (A-level points, O-level subjects, gender, province, and country). This tool automatically uses the user\'s profile data. If the user\'s profile is incomplete, it will use the available information. Returns a list of recommended program objects with `program_id`, `program_name`, `institution`, `min_points_required`, `student_points`, `acceptance_probability`, and `required_subjects`.',
+                description: 'Recommends academic programs based on the user\'s profile data (A-level points, O-level subjects, gender, province, and country). This tool automatically uses the user\'s profile data. If the user\'s profile is incomplete, it will use the available information. Returns a list of recommended program objects with `program_id`, `program_name`, `institution`, `min_points_required`, `student_points`, `acceptance_probability`, and `required_subjects`. if a user provides a program name, fetch the program id and use it withought asking them to enter the id',
                 parameters: {
                     type: 'object',
                     properties: {

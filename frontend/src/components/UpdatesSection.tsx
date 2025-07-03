@@ -156,14 +156,14 @@ const UpdatesSection = () => {
 
             <div className="mt-8 bg-gradient-to-br from-teal to-teal-dark rounded-xl p-6 text-white shadow-md animate-fade-in-right animate-delay-200">
               <h4 className="text-xl font-bold mb-4">Application Reminder</h4>
-              <p className="mb-6">Early decision applications for Fall 2024 are closing soon. Don't miss the opportunity to secure your spot.</p>
+              <p className="mb-6">Early decision applications for Fall 2025 are closing soon. Don't miss the opportunity to secure your spot.</p>
               <div className="bg-white/20 rounded-lg p-4">
                 <div className="text-xs mb-1">Deadline</div>
                 <div className="text-lg font-bold">August 15, 2025</div>
                 <div className="w-full h-1.5 bg-white/20 rounded-full mt-2 overflow-hidden">
                   <div className="w-1/3 h-full bg-white"></div>
                 </div>
-                <div className="text-xs mt-1">3 Months remaining</div>
+                <div className="text-xs mt-1">1 Month remaining</div>
               </div>
               <button className="w-full py-3 bg-white text-teal font-medium rounded-md mt-4 hover:bg-white/90 transition-colors">
                 Submit Your Application

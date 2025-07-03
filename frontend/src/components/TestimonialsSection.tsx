@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { Star, Quote } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const TestimonialsSection = () => {
+  const navigate = useNavigate();
   const testimonials = [
     {
       id: 1,
@@ -93,7 +95,9 @@ const TestimonialsSection = () => {
           <p className="text-white/80 mb-6 max-w-2xl mx-auto">
             Join thousands of students who have successfully found their perfect academic match through our platform
           </p>
-          <button className="px-8 py-3 bg-teal text-white rounded-md hover:bg-teal-light transition-colors inline-flex items-center justify-center">
+          <button className="px-8 py-3 bg-teal text-white rounded-md hover:bg-teal-light transition-colors inline-flex items-center justify-center"
+            onClick={() => (navigate('/dashboard'))}
+          >
             Start Your Application
           </button>
         </div>

@@ -234,7 +234,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         response = self._change_status(request, pk, 'Approved')
         if response.status_code == 200:
             application = self.get_object()
-            send_application_email(application, request, 'status_change')
+            send_status_email(application, request)
         return response
 
     @action(detail=True, methods=['post'], serializer_class=ApplicationStatusSerializer)
@@ -243,7 +243,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         response = self._change_status(request, pk, 'Rejected')
         if response.status_code == 200:
             application = self.get_object()
-            send_application_email(application, request, 'status_change')
+            send_status_email(application, request)
         return response
 
     @action(detail=True, methods=['post'], serializer_class=ApplicationStatusSerializer)
@@ -252,7 +252,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         response = self._change_status(request, pk, 'Deferred')
         if response.status_code == 200:
             application = self.get_object()
-            send_application_email(application, request, 'status_change')
+            send_status_email(application, request)
         return response
 
     @action(detail=True, methods=['post'], serializer_class=ApplicationStatusSerializer)
@@ -261,7 +261,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         response = self._change_status(request, pk, 'Waitlisted')
         if response.status_code == 200:
             application = self.get_object()
-            send_application_email(application, request, 'status_change')
+            send_status_email(application, request)
         return response
 
     @action(detail=False, methods=['get'])
@@ -591,14 +591,14 @@ class EnrollerActionsViewSet(viewsets.ViewSet):
             )
 
             # Send email notification to student
-            send_document_request_email.delay(
+            send_document_request_email(
                 application=application,
                 documents_requested=serializer.validated_data['documents_requested'],
                 request=request
             )
 
             # Create notification for student
-            send_notification.delay(
+            send_notification(
                 user=application.student,
                 title="Document Request",
                 message=f"{request.user.name} requested additional documents for your application",
@@ -619,12 +619,13 @@ class EnrollerActionsViewSet(viewsets.ViewSet):
         """
         Endpoint for enrollers to offer alternative programs to students
         """
+        print(request.data)
         application = self.get_application(pk)
         serializer = ProgramAlternativeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
+        # print('errors...', serializer.errors)
         try:
-            alternative_program = Program.objects.get(id=serializer.validated_data['program_id'])
+            alternative_program = Program.objects.get(id=serializer.validated_data['alternative_program_id'])
 
             # Save the alternative offer to application notes
             application.admin_notes = (
@@ -642,14 +643,14 @@ class EnrollerActionsViewSet(viewsets.ViewSet):
             )
 
             # Send email notification to student
-            send_program_alternative_email.delay(
+            send_program_alternative_email(
                 application=application,
                 alternative_program=alternative_program,
                 request=request
             )
 
             # Create notification for student
-            send_notification.delay(
+            send_notification(
                 user=application.student,
                 title="Alternative Program Offered",
                 message=f"{request.user.name} offered you an alternative program: {alternative_program.name}",
@@ -760,7 +761,7 @@ class EnrollerActionsViewSet(viewsets.ViewSet):
             )
 
             # Create notification for student
-            send_notification.delay(
+            send_notification(
                 user=application.student,
                 title="New Message",
                 message=f"{request.user.name} sent you a message about your application",

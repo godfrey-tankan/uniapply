@@ -166,12 +166,10 @@ class DocumentRequestSerializer(serializers.Serializer):
     )
 
 class ProgramAlternativeSerializer(serializers.Serializer):
-    program_id = serializers.IntegerField(
-        required=True,
-        help_text="ID of the alternative program being offered"
-    )
+    alternative_program_id = serializers.IntegerField(required=True)
 
     def validate_program_id(self, value):
+        print('this is the value....')
         if not Program.objects.filter(id=value).exists():
             raise serializers.ValidationError("Program does not exist")
         return value

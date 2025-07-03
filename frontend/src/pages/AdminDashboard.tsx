@@ -380,8 +380,10 @@ const AdminDashboard = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>System Performance</CardTitle>
+                  <a href='http://127.0.0.1:3000/d/O6v4rMpizda/django?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=fequ6k7kc2ayoe&var-application=$__all&var-threshold=1.0&refresh=30s' className='text-red-700'>Advanced Monitoring</a>
                   <CardDescription>Real-time system metrics</CardDescription>
                 </CardHeader>
+
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">

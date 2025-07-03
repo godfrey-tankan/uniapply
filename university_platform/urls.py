@@ -20,6 +20,7 @@ from recommendations.views import ProgramRecommendationsForUserView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('p/', include('django_prometheus.urls')),
     path('api/programs/recommendations/for-user/', ProgramRecommendationsForUserView.as_view(), name='program-recommendations-for-user'),
     path('auth/', include('users.urls')),
     path('api/', include('applications.api.urls')),
